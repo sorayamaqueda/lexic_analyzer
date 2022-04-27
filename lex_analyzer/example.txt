@@ -1,0 +1,45 @@
+type vectorA is array(1...5, 1...5) of float;
+type vectorB is array(1...5, 1...5) of float;
+type vectorSum is array(1...5, 1...5) of float;
+
+procedure Main is
+select: Integer;
+begin
+    if vectorA > 0 and vectorB > 0 then
+        Put(“Enter 1 to create vectorA; 0 for vector”);
+        New_Line;
+        Get(select);
+        CreateMatrix(select);
+    else
+        Main;
+    end if;
+end Main;
+
+procedure CreateMatrix (matrix: Integer) is
+value: Integer;
+begin
+    for i in vectorSum’Range(1) loop
+        for j in vectorSum’First(2)…vectorSum’Last(4) loop
+            Put(“Enter value…”)
+            New_Line;
+            Get(value);
+            if matrix = 1 then
+                vectorA(i, j) := value;
+            else
+                vector(i, j) := value;
+            end if;
+        end loop
+    end loop;
+end CreateMatrix;
+
+-- Procedure for Matrix Sum
+procedure matrixSum is
+begin
+    for i in vectorSum'Range(1) loop
+        for j in vectorSum'First(2)..vectorSum'Last(4) loop
+            sum : float;
+            sum := vectorA(i, j) + vectorB(i, j);
+            vectorSum(i, j) := sum;
+        end loop
+    end loop
+end matrixSum;

@@ -1,0 +1,146 @@
+Created by PLY version 3.11 (http://www.dabeaz.com/ply)
+
+Unused terminals:
+
+    array
+    begin
+    digit
+    else
+    elsif
+    end
+    for
+    if
+    in
+    integer
+    is
+    loop
+    procedure
+    range
+    then
+    type
+    use
+    while
+    with
+
+Grammar
+
+Rule 0     S' -> P
+Rule 1     P -> WITH P
+Rule 2     S -> WHILE E LOOP S END LOOP SEMICOLON
+Rule 3     S -> WHILE E LOOP A END LOOP SEMICOLON
+Rule 4     S -> FOR V IN RANGE LOOP S END LOOP SEMICOLON
+Rule 5     S -> FOR V IN RANGE LOOP A END LOOP SEMICOLON
+Rule 6     S -> IF E THEN S ELSIF S END IF SEMICOLON
+Rule 7     S -> IF E THEN S ELSE S END IF SEMICOLON
+Rule 8     S -> IF E THEN S END IF SEMICOLON
+Rule 9     S -> IF E THEN S ELSIF A END IF SEMICOLON
+Rule 10    S -> IF E THEN S ELSE A END IF SEMICOLON
+Rule 11    S -> IF E THEN A END IF SEMICOLON
+Rule 12    S -> IF E THEN A ELSIF S END IF SEMICOLON
+Rule 13    S -> IF E THEN A ELSE S END IF SEMICOLON
+Rule 14    S -> IF E THEN A ELSIF A END IF SEMICOLON
+Rule 15    S -> IF E THEN A ELSE A END IF SEMICOLON
+Rule 16    A -> V ASSIGN E SEMICOLON
+Rule 17    A -> V ASSIGN FLOAT SEMICOLON
+Rule 18    A -> V ASSIGN INT SEMICOLON
+Rule 19    P -> PROCEDURE ID IS V END ID SEMICOLON
+Rule 20    P -> PROCEDURE ID IS BEGIN S END ID
+Rule 21    E -> V GT FLOAT
+Rule 22    E -> V GT INT
+Rule 23    E -> V GT V
+Rule 24    E -> V LT FLOAT
+Rule 25    E -> V LT INT
+Rule 26    E -> V LT V
+Rule 27    E -> V EQUAL FLOAT
+Rule 28    E -> V EQUAL INT
+Rule 29    E -> V PLUS FLOAT
+Rule 30    E -> V PLUS INT
+Rule 31    E -> V PLUS V
+Rule 32    E -> V MINUS FLOAT
+Rule 33    E -> V MINUS INT
+Rule 34    E -> V MINUS V
+Rule 35    E -> V DIVIDE FLOAT
+Rule 36    E -> V DIVIDE INT
+Rule 37    E -> V DIVIDE V
+Rule 38    E -> V TIMES FLOAT
+Rule 39    E -> V TIMES INT
+Rule 40    E -> V TIMES V
+Rule 41    E -> V GTE V
+Rule 42    E -> V GTE INT
+Rule 43    E -> V GTE FLOAT
+Rule 44    E -> V LTE V
+Rule 45    E -> V LTE INT
+Rule 46    E -> V LTE FLOAT
+Rule 47    R -> BRAOPEN INT SUSPENSIVE INT BRACLOSE
+Rule 48    R -> BRAOPEN INT SUSPENSIVE INT COMMA INT SUSPENSIVE INT BRACLOSE
+Rule 49    R -> BRAOPEN INT SUSPENSIVE INT COMMA INT SUSPENSIVE INT COMMA INT SUSPENSIVE INT BRACLOSE
+Rule 50    V -> TYPE ID IS INT SEMICOLON
+Rule 51    V -> TYPE ID IS FLOAT SEMICOLON
+Rule 52    V -> TYPE ID IS ARRAY RANGE SEMICOLON
+
+Terminals, with rules where they appear
+
+ASSIGN               : 16 17 18
+BRACLOSE             : 47 48 49
+BRAOPEN              : 47 48 49
+COMMA                : 48 49 49
+DIVIDE               : 35 36 37
+EQUAL                : 27 28
+FLOAT                : 17 21 24 27 29 32 35 38 43 46 51
+GT                   : 21 22 23
+GTE                  : 41 42 43
+ID                   : 19 19 20 20 50 51 52
+INT                  : 18 22 25 28 30 33 36 39 42 45 47 47 48 48 48 48 49 49 49 49 49 49 50
+LT                   : 24 25 26
+LTE                  : 44 45 46
+MINUS                : 32 33 34
+PLUS                 : 29 30 31
+SEMICOLON            : 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 50 51 52
+SUSPENSIVE           : 47 48 48 49 49 49
+TIMES                : 38 39 40
+array                : 
+begin                : 
+digit                : 
+else                 : 
+elsif                : 
+end                  : 
+error                : 
+for                  : 
+if                   : 
+in                   : 
+integer              : 
+is                   : 
+loop                 : 
+procedure            : 
+range                : 
+then                 : 
+type                 : 
+use                  : 
+while                : 
+with                 : 
+
+Nonterminals, with rules where they appear
+
+A                    : 3 5 9 10 11 12 13 14 14 15 15
+ARRAY                : 52
+BEGIN                : 20
+E                    : 2 3 6 7 8 9 10 11 12 13 14 15 16
+ELSE                 : 7 10 13 15
+ELSIF                : 6 9 12 14
+END                  : 2 3 4 5 6 7 8 9 10 11 12 13 14 15 19 20
+FOR                  : 4 5
+IF                   : 6 6 7 7 8 8 9 9 10 10 11 11 12 12 13 13 14 14 15 15
+IN                   : 4 5
+IS                   : 19 20 50 51 52
+LOOP                 : 2 2 3 3 4 4 5 5
+P                    : 1 0
+PROCEDURE            : 19 20
+R                    : 
+RANGE                : 4 5 52
+S                    : 2 4 6 6 7 7 8 9 10 12 13 20
+THEN                 : 6 7 8 9 10 11 12 13 14 15
+TYPE                 : 50 51 52
+V                    : 4 5 16 17 18 19 21 22 23 23 24 25 26 26 27 28 29 30 31 31 32 33 34 34 35 36 37 37 38 39 40 40 41 41 42 43 44 44 45 46
+WHILE                : 2 3
+WITH                 : 1
+

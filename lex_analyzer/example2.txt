@@ -1,0 +1,4 @@
+type vector is integer;
+type var1 is digits;
+
+type arr is array (0...5,0...5,0...5);
