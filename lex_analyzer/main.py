@@ -142,12 +142,12 @@ def t_FLOAT(t):
 
 # Assign
 def t_ASSIGN(t):
-    r':='
+    r'\:='
     t.type = ':='
     return t
 
 def t_SUSPENSIVE(t):
-    r'...'
+    r'\...'
     t.type = 'SUSPENSIVE'
     return t
 
@@ -371,14 +371,8 @@ def p_A(t):
       | V ASSIGN FLOAT SEMICOLON 
       | V ASSIGN INT SEMICOLON
     '''
-    # Assert that assignation syntax is correct
-    isValid = t_ASSIGN(t[2]) and t_SEMICOLON(t[4])
 
-    if isValid:
-        value = operator_type(t[3]) # Define data type and its value
-        t[0] = value # Assign it to the variable
-    
-    return t
+    t[0] = operator_type(t[3])
 
 # Procedures
 def p_P(t):
@@ -386,17 +380,11 @@ def p_P(t):
     P : PROCEDURE ID IS V END ID SEMICOLON 
       | PROCEDURE ID IS BEGIN S END ID
     '''
-    # If the procedure only declares variables (t[4] == V), then we only decalre them.
-    # Else, if it contains Statements (t[4] == S), then we call on the corresponding 
-    # statement rule function.
-    isValid = t_PROCEDURE(t[1]) and t_ID(t[2]) and t_IS(t[3]) and (p_V(t[4]) or p_S(t[4])) and t_END(t[5]) and t_ID(t[7])
-    if isValid:
-        try:
-            p_V(t[4])
+    try:
+        t[0] = p_V(t[4])
+    except:
+        t[0] = p_S(t[4])
 
-        except:
-            p_S(t[4])
-    
     return t
 
 # Expressions
@@ -451,7 +439,7 @@ def p_E(t):
     op2 = operator_type(t[3]) # integer or float data type
     expr = evaluator(t[2], op1, op2)
     
-    return t, expr
+    t[0] = expr
 
 # Variables
 def data_type(t):
@@ -512,7 +500,7 @@ def p_V(t):
         names[t[2]] = ranges
 
     print(names)
-    #return t, True
+    t[0] = t[4]
 
 # Grammar Error Handling
 def p_error(t):
@@ -523,7 +511,7 @@ import ply.yacc as yacc
 parser = yacc.yacc()
 
 # Reading file with example code
-f = open('./example2.txt', 'r', encoding="utf8")
+f = open('./example1.txt', 'r', encoding="utf8")
 input = f.read()
 print('\n')
 print(input)
