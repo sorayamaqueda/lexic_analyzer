@@ -367,7 +367,7 @@ def p_S(t):
       | IF E THEN A ELSE A END IF SEMICOLON
     '''
     call_loop(t)
-    t[0] = t[1]
+    #t[0] = t[1]
 
 # Assignation
 def p_A(t):
