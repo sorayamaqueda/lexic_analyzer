@@ -2,25 +2,7 @@ Created by PLY version 3.11 (http://www.dabeaz.com/ply)
 
 Unused terminals:
 
-    array
-    begin
-    digit
-    else
-    elsif
-    end
-    for
-    if
-    in
-    integer
-    is
-    loop
-    procedure
-    range
-    then
-    type
-    use
-    while
-    with
+    USE
 
 Grammar
 
@@ -28,8 +10,8 @@ Rule 0     S' -> P
 Rule 1     P -> WITH P
 Rule 2     S -> WHILE E LOOP S END LOOP SEMICOLON
 Rule 3     S -> WHILE E LOOP A END LOOP SEMICOLON
-Rule 4     S -> FOR V IN RANGE LOOP S END LOOP SEMICOLON
-Rule 5     S -> FOR V IN RANGE LOOP A END LOOP SEMICOLON
+Rule 4     S -> FOR V IN R LOOP S END LOOP SEMICOLON
+Rule 5     S -> FOR V IN R LOOP A END LOOP SEMICOLON
 Rule 6     S -> IF E THEN S ELSIF S END IF SEMICOLON
 Rule 7     S -> IF E THEN S ELSE S END IF SEMICOLON
 Rule 8     S -> IF E THEN S END IF SEMICOLON
@@ -76,71 +58,1768 @@ Rule 48    R -> BRAOPEN INT SUSPENSIVE INT COMMA INT SUSPENSIVE INT BRACLOSE
 Rule 49    R -> BRAOPEN INT SUSPENSIVE INT COMMA INT SUSPENSIVE INT COMMA INT SUSPENSIVE INT BRACLOSE
 Rule 50    V -> TYPE ID IS INT SEMICOLON
 Rule 51    V -> TYPE ID IS FLOAT SEMICOLON
-Rule 52    V -> TYPE ID IS ARRAY RANGE SEMICOLON
+Rule 52    V -> TYPE ID IS ARRAY R SEMICOLON
 
 Terminals, with rules where they appear
 
+ARRAY                : 52
 ASSIGN               : 16 17 18
+BEGIN                : 20
 BRACLOSE             : 47 48 49
 BRAOPEN              : 47 48 49
 COMMA                : 48 49 49
 DIVIDE               : 35 36 37
+ELSE                 : 7 10 13 15
+ELSIF                : 6 9 12 14
+END                  : 2 3 4 5 6 7 8 9 10 11 12 13 14 15 19 20
 EQUAL                : 27 28
 FLOAT                : 17 21 24 27 29 32 35 38 43 46 51
+FOR                  : 4 5
 GT                   : 21 22 23
 GTE                  : 41 42 43
 ID                   : 19 19 20 20 50 51 52
+IF                   : 6 6 7 7 8 8 9 9 10 10 11 11 12 12 13 13 14 14 15 15
+IN                   : 4 5
 INT                  : 18 22 25 28 30 33 36 39 42 45 47 47 48 48 48 48 49 49 49 49 49 49 50
+IS                   : 19 20 50 51 52
+LOOP                 : 2 2 3 3 4 4 5 5
 LT                   : 24 25 26
 LTE                  : 44 45 46
 MINUS                : 32 33 34
 PLUS                 : 29 30 31
+PROCEDURE            : 19 20
 SEMICOLON            : 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 50 51 52
 SUSPENSIVE           : 47 48 48 49 49 49
+THEN                 : 6 7 8 9 10 11 12 13 14 15
 TIMES                : 38 39 40
-array                : 
-begin                : 
-digit                : 
-else                 : 
-elsif                : 
-end                  : 
+TYPE                 : 50 51 52
+USE                  : 
+WHILE                : 2 3
+WITH                 : 1
 error                : 
-for                  : 
-if                   : 
-in                   : 
-integer              : 
-is                   : 
-loop                 : 
-procedure            : 
-range                : 
-then                 : 
-type                 : 
-use                  : 
-while                : 
-with                 : 
 
 Nonterminals, with rules where they appear
 
 A                    : 3 5 9 10 11 12 13 14 14 15 15
-ARRAY                : 52
-BEGIN                : 20
 E                    : 2 3 6 7 8 9 10 11 12 13 14 15 16
-ELSE                 : 7 10 13 15
-ELSIF                : 6 9 12 14
-END                  : 2 3 4 5 6 7 8 9 10 11 12 13 14 15 19 20
-FOR                  : 4 5
-IF                   : 6 6 7 7 8 8 9 9 10 10 11 11 12 12 13 13 14 14 15 15
-IN                   : 4 5
-IS                   : 19 20 50 51 52
-LOOP                 : 2 2 3 3 4 4 5 5
 P                    : 1 0
-PROCEDURE            : 19 20
-R                    : 
-RANGE                : 4 5 52
+R                    : 4 5 52
 S                    : 2 4 6 6 7 7 8 9 10 12 13 20
-THEN                 : 6 7 8 9 10 11 12 13 14 15
-TYPE                 : 50 51 52
 V                    : 4 5 16 17 18 19 21 22 23 23 24 25 26 26 27 28 29 30 31 31 32 33 34 34 35 36 37 37 38 39 40 40 41 41 42 43 44 44 45 46
-WHILE                : 2 3
-WITH                 : 1
+
+Parsing method: LALR
+
+state 0
+
+    (0) S' -> . P
+    (1) P -> . WITH P
+    (19) P -> . PROCEDURE ID IS V END ID SEMICOLON
+    (20) P -> . PROCEDURE ID IS BEGIN S END ID
+
+    WITH            shift and go to state 2
+    PROCEDURE       shift and go to state 3
+
+    P                              shift and go to state 1
+
+state 1
+
+    (0) S' -> P .
+
+
+
+state 2
+
+    (1) P -> WITH . P
+    (1) P -> . WITH P
+    (19) P -> . PROCEDURE ID IS V END ID SEMICOLON
+    (20) P -> . PROCEDURE ID IS BEGIN S END ID
+
+    WITH            shift and go to state 2
+    PROCEDURE       shift and go to state 3
+
+    P                              shift and go to state 4
+
+state 3
+
+    (19) P -> PROCEDURE . ID IS V END ID SEMICOLON
+    (20) P -> PROCEDURE . ID IS BEGIN S END ID
+
+    ID              shift and go to state 5
+
+
+state 4
+
+    (1) P -> WITH P .
+
+    $end            reduce using rule 1 (P -> WITH P .)
+
+
+state 5
+
+    (19) P -> PROCEDURE ID . IS V END ID SEMICOLON
+    (20) P -> PROCEDURE ID . IS BEGIN S END ID
+
+    IS              shift and go to state 6
+
+
+state 6
+
+    (19) P -> PROCEDURE ID IS . V END ID SEMICOLON
+    (20) P -> PROCEDURE ID IS . BEGIN S END ID
+    (50) V -> . TYPE ID IS INT SEMICOLON
+    (51) V -> . TYPE ID IS FLOAT SEMICOLON
+    (52) V -> . TYPE ID IS ARRAY R SEMICOLON
+
+    BEGIN           shift and go to state 8
+    TYPE            shift and go to state 9
+
+    V                              shift and go to state 7
+
+state 7
+
+    (19) P -> PROCEDURE ID IS V . END ID SEMICOLON
+
+    END             shift and go to state 10
+
+
+state 8
+
+    (20) P -> PROCEDURE ID IS BEGIN . S END ID
+    (2) S -> . WHILE E LOOP S END LOOP SEMICOLON
+    (3) S -> . WHILE E LOOP A END LOOP SEMICOLON
+    (4) S -> . FOR V IN R LOOP S END LOOP SEMICOLON
+    (5) S -> . FOR V IN R LOOP A END LOOP SEMICOLON
+    (6) S -> . IF E THEN S ELSIF S END IF SEMICOLON
+    (7) S -> . IF E THEN S ELSE S END IF SEMICOLON
+    (8) S -> . IF E THEN S END IF SEMICOLON
+    (9) S -> . IF E THEN S ELSIF A END IF SEMICOLON
+    (10) S -> . IF E THEN S ELSE A END IF SEMICOLON
+    (11) S -> . IF E THEN A END IF SEMICOLON
+    (12) S -> . IF E THEN A ELSIF S END IF SEMICOLON
+    (13) S -> . IF E THEN A ELSE S END IF SEMICOLON
+    (14) S -> . IF E THEN A ELSIF A END IF SEMICOLON
+    (15) S -> . IF E THEN A ELSE A END IF SEMICOLON
+
+    WHILE           shift and go to state 12
+    FOR             shift and go to state 13
+    IF              shift and go to state 14
+
+    S                              shift and go to state 11
+
+state 9
+
+    (50) V -> TYPE . ID IS INT SEMICOLON
+    (51) V -> TYPE . ID IS FLOAT SEMICOLON
+    (52) V -> TYPE . ID IS ARRAY R SEMICOLON
+
+    ID              shift and go to state 15
+
+
+state 10
+
+    (19) P -> PROCEDURE ID IS V END . ID SEMICOLON
+
+    ID              shift and go to state 16
+
+
+state 11
+
+    (20) P -> PROCEDURE ID IS BEGIN S . END ID
+
+    END             shift and go to state 17
+
+
+state 12
+
+    (2) S -> WHILE . E LOOP S END LOOP SEMICOLON
+    (3) S -> WHILE . E LOOP A END LOOP SEMICOLON
+    (21) E -> . V GT FLOAT
+    (22) E -> . V GT INT
+    (23) E -> . V GT V
+    (24) E -> . V LT FLOAT
+    (25) E -> . V LT INT
+    (26) E -> . V LT V
+    (27) E -> . V EQUAL FLOAT
+    (28) E -> . V EQUAL INT
+    (29) E -> . V PLUS FLOAT
+    (30) E -> . V PLUS INT
+    (31) E -> . V PLUS V
+    (32) E -> . V MINUS FLOAT
+    (33) E -> . V MINUS INT
+    (34) E -> . V MINUS V
+    (35) E -> . V DIVIDE FLOAT
+    (36) E -> . V DIVIDE INT
+    (37) E -> . V DIVIDE V
+    (38) E -> . V TIMES FLOAT
+    (39) E -> . V TIMES INT
+    (40) E -> . V TIMES V
+    (41) E -> . V GTE V
+    (42) E -> . V GTE INT
+    (43) E -> . V GTE FLOAT
+    (44) E -> . V LTE V
+    (45) E -> . V LTE INT
+    (46) E -> . V LTE FLOAT
+    (50) V -> . TYPE ID IS INT SEMICOLON
+    (51) V -> . TYPE ID IS FLOAT SEMICOLON
+    (52) V -> . TYPE ID IS ARRAY R SEMICOLON
+
+    TYPE            shift and go to state 9
+
+    E                              shift and go to state 18
+    V                              shift and go to state 19
+
+state 13
+
+    (4) S -> FOR . V IN R LOOP S END LOOP SEMICOLON
+    (5) S -> FOR . V IN R LOOP A END LOOP SEMICOLON
+    (50) V -> . TYPE ID IS INT SEMICOLON
+    (51) V -> . TYPE ID IS FLOAT SEMICOLON
+    (52) V -> . TYPE ID IS ARRAY R SEMICOLON
+
+    TYPE            shift and go to state 9
+
+    V                              shift and go to state 20
+
+state 14
+
+    (6) S -> IF . E THEN S ELSIF S END IF SEMICOLON
+    (7) S -> IF . E THEN S ELSE S END IF SEMICOLON
+    (8) S -> IF . E THEN S END IF SEMICOLON
+    (9) S -> IF . E THEN S ELSIF A END IF SEMICOLON
+    (10) S -> IF . E THEN S ELSE A END IF SEMICOLON
+    (11) S -> IF . E THEN A END IF SEMICOLON
+    (12) S -> IF . E THEN A ELSIF S END IF SEMICOLON
+    (13) S -> IF . E THEN A ELSE S END IF SEMICOLON
+    (14) S -> IF . E THEN A ELSIF A END IF SEMICOLON
+    (15) S -> IF . E THEN A ELSE A END IF SEMICOLON
+    (21) E -> . V GT FLOAT
+    (22) E -> . V GT INT
+    (23) E -> . V GT V
+    (24) E -> . V LT FLOAT
+    (25) E -> . V LT INT
+    (26) E -> . V LT V
+    (27) E -> . V EQUAL FLOAT
+    (28) E -> . V EQUAL INT
+    (29) E -> . V PLUS FLOAT
+    (30) E -> . V PLUS INT
+    (31) E -> . V PLUS V
+    (32) E -> . V MINUS FLOAT
+    (33) E -> . V MINUS INT
+    (34) E -> . V MINUS V
+    (35) E -> . V DIVIDE FLOAT
+    (36) E -> . V DIVIDE INT
+    (37) E -> . V DIVIDE V
+    (38) E -> . V TIMES FLOAT
+    (39) E -> . V TIMES INT
+    (40) E -> . V TIMES V
+    (41) E -> . V GTE V
+    (42) E -> . V GTE INT
+    (43) E -> . V GTE FLOAT
+    (44) E -> . V LTE V
+    (45) E -> . V LTE INT
+    (46) E -> . V LTE FLOAT
+    (50) V -> . TYPE ID IS INT SEMICOLON
+    (51) V -> . TYPE ID IS FLOAT SEMICOLON
+    (52) V -> . TYPE ID IS ARRAY R SEMICOLON
+
+    TYPE            shift and go to state 9
+
+    E                              shift and go to state 21
+    V                              shift and go to state 19
+
+state 15
+
+    (50) V -> TYPE ID . IS INT SEMICOLON
+    (51) V -> TYPE ID . IS FLOAT SEMICOLON
+    (52) V -> TYPE ID . IS ARRAY R SEMICOLON
+
+    IS              shift and go to state 22
+
+
+state 16
+
+    (19) P -> PROCEDURE ID IS V END ID . SEMICOLON
+
+    SEMICOLON       shift and go to state 23
+
+
+state 17
+
+    (20) P -> PROCEDURE ID IS BEGIN S END . ID
+
+    ID              shift and go to state 24
+
+
+state 18
+
+    (2) S -> WHILE E . LOOP S END LOOP SEMICOLON
+    (3) S -> WHILE E . LOOP A END LOOP SEMICOLON
+
+    LOOP            shift and go to state 25
+
+
+state 19
+
+    (21) E -> V . GT FLOAT
+    (22) E -> V . GT INT
+    (23) E -> V . GT V
+    (24) E -> V . LT FLOAT
+    (25) E -> V . LT INT
+    (26) E -> V . LT V
+    (27) E -> V . EQUAL FLOAT
+    (28) E -> V . EQUAL INT
+    (29) E -> V . PLUS FLOAT
+    (30) E -> V . PLUS INT
+    (31) E -> V . PLUS V
+    (32) E -> V . MINUS FLOAT
+    (33) E -> V . MINUS INT
+    (34) E -> V . MINUS V
+    (35) E -> V . DIVIDE FLOAT
+    (36) E -> V . DIVIDE INT
+    (37) E -> V . DIVIDE V
+    (38) E -> V . TIMES FLOAT
+    (39) E -> V . TIMES INT
+    (40) E -> V . TIMES V
+    (41) E -> V . GTE V
+    (42) E -> V . GTE INT
+    (43) E -> V . GTE FLOAT
+    (44) E -> V . LTE V
+    (45) E -> V . LTE INT
+    (46) E -> V . LTE FLOAT
+
+    GT              shift and go to state 26
+    LT              shift and go to state 27
+    EQUAL           shift and go to state 28
+    PLUS            shift and go to state 29
+    MINUS           shift and go to state 30
+    DIVIDE          shift and go to state 31
+    TIMES           shift and go to state 32
+    GTE             shift and go to state 33
+    LTE             shift and go to state 34
+
+
+state 20
+
+    (4) S -> FOR V . IN R LOOP S END LOOP SEMICOLON
+    (5) S -> FOR V . IN R LOOP A END LOOP SEMICOLON
+
+    IN              shift and go to state 35
+
+
+state 21
+
+    (6) S -> IF E . THEN S ELSIF S END IF SEMICOLON
+    (7) S -> IF E . THEN S ELSE S END IF SEMICOLON
+    (8) S -> IF E . THEN S END IF SEMICOLON
+    (9) S -> IF E . THEN S ELSIF A END IF SEMICOLON
+    (10) S -> IF E . THEN S ELSE A END IF SEMICOLON
+    (11) S -> IF E . THEN A END IF SEMICOLON
+    (12) S -> IF E . THEN A ELSIF S END IF SEMICOLON
+    (13) S -> IF E . THEN A ELSE S END IF SEMICOLON
+    (14) S -> IF E . THEN A ELSIF A END IF SEMICOLON
+    (15) S -> IF E . THEN A ELSE A END IF SEMICOLON
+
+    THEN            shift and go to state 36
+
+
+state 22
+
+    (50) V -> TYPE ID IS . INT SEMICOLON
+    (51) V -> TYPE ID IS . FLOAT SEMICOLON
+    (52) V -> TYPE ID IS . ARRAY R SEMICOLON
+
+    INT             shift and go to state 37
+    FLOAT           shift and go to state 38
+    ARRAY           shift and go to state 39
+
+
+state 23
+
+    (19) P -> PROCEDURE ID IS V END ID SEMICOLON .
+
+    $end            reduce using rule 19 (P -> PROCEDURE ID IS V END ID SEMICOLON .)
+
+
+state 24
+
+    (20) P -> PROCEDURE ID IS BEGIN S END ID .
+
+    $end            reduce using rule 20 (P -> PROCEDURE ID IS BEGIN S END ID .)
+
+
+state 25
+
+    (2) S -> WHILE E LOOP . S END LOOP SEMICOLON
+    (3) S -> WHILE E LOOP . A END LOOP SEMICOLON
+    (2) S -> . WHILE E LOOP S END LOOP SEMICOLON
+    (3) S -> . WHILE E LOOP A END LOOP SEMICOLON
+    (4) S -> . FOR V IN R LOOP S END LOOP SEMICOLON
+    (5) S -> . FOR V IN R LOOP A END LOOP SEMICOLON
+    (6) S -> . IF E THEN S ELSIF S END IF SEMICOLON
+    (7) S -> . IF E THEN S ELSE S END IF SEMICOLON
+    (8) S -> . IF E THEN S END IF SEMICOLON
+    (9) S -> . IF E THEN S ELSIF A END IF SEMICOLON
+    (10) S -> . IF E THEN S ELSE A END IF SEMICOLON
+    (11) S -> . IF E THEN A END IF SEMICOLON
+    (12) S -> . IF E THEN A ELSIF S END IF SEMICOLON
+    (13) S -> . IF E THEN A ELSE S END IF SEMICOLON
+    (14) S -> . IF E THEN A ELSIF A END IF SEMICOLON
+    (15) S -> . IF E THEN A ELSE A END IF SEMICOLON
+    (16) A -> . V ASSIGN E SEMICOLON
+    (17) A -> . V ASSIGN FLOAT SEMICOLON
+    (18) A -> . V ASSIGN INT SEMICOLON
+    (50) V -> . TYPE ID IS INT SEMICOLON
+    (51) V -> . TYPE ID IS FLOAT SEMICOLON
+    (52) V -> . TYPE ID IS ARRAY R SEMICOLON
+
+    WHILE           shift and go to state 12
+    FOR             shift and go to state 13
+    IF              shift and go to state 14
+    TYPE            shift and go to state 9
+
+    S                              shift and go to state 40
+    A                              shift and go to state 41
+    V                              shift and go to state 42
+
+state 26
+
+    (21) E -> V GT . FLOAT
+    (22) E -> V GT . INT
+    (23) E -> V GT . V
+    (50) V -> . TYPE ID IS INT SEMICOLON
+    (51) V -> . TYPE ID IS FLOAT SEMICOLON
+    (52) V -> . TYPE ID IS ARRAY R SEMICOLON
+
+    FLOAT           shift and go to state 44
+    INT             shift and go to state 45
+    TYPE            shift and go to state 9
+
+    V                              shift and go to state 43
+
+state 27
+
+    (24) E -> V LT . FLOAT
+    (25) E -> V LT . INT
+    (26) E -> V LT . V
+    (50) V -> . TYPE ID IS INT SEMICOLON
+    (51) V -> . TYPE ID IS FLOAT SEMICOLON
+    (52) V -> . TYPE ID IS ARRAY R SEMICOLON
+
+    FLOAT           shift and go to state 47
+    INT             shift and go to state 48
+    TYPE            shift and go to state 9
+
+    V                              shift and go to state 46
+
+state 28
+
+    (27) E -> V EQUAL . FLOAT
+    (28) E -> V EQUAL . INT
+
+    FLOAT           shift and go to state 49
+    INT             shift and go to state 50
+
+
+state 29
+
+    (29) E -> V PLUS . FLOAT
+    (30) E -> V PLUS . INT
+    (31) E -> V PLUS . V
+    (50) V -> . TYPE ID IS INT SEMICOLON
+    (51) V -> . TYPE ID IS FLOAT SEMICOLON
+    (52) V -> . TYPE ID IS ARRAY R SEMICOLON
+
+    FLOAT           shift and go to state 52
+    INT             shift and go to state 53
+    TYPE            shift and go to state 9
+
+    V                              shift and go to state 51
+
+state 30
+
+    (32) E -> V MINUS . FLOAT
+    (33) E -> V MINUS . INT
+    (34) E -> V MINUS . V
+    (50) V -> . TYPE ID IS INT SEMICOLON
+    (51) V -> . TYPE ID IS FLOAT SEMICOLON
+    (52) V -> . TYPE ID IS ARRAY R SEMICOLON
+
+    FLOAT           shift and go to state 55
+    INT             shift and go to state 56
+    TYPE            shift and go to state 9
+
+    V                              shift and go to state 54
+
+state 31
+
+    (35) E -> V DIVIDE . FLOAT
+    (36) E -> V DIVIDE . INT
+    (37) E -> V DIVIDE . V
+    (50) V -> . TYPE ID IS INT SEMICOLON
+    (51) V -> . TYPE ID IS FLOAT SEMICOLON
+    (52) V -> . TYPE ID IS ARRAY R SEMICOLON
+
+    FLOAT           shift and go to state 58
+    INT             shift and go to state 59
+    TYPE            shift and go to state 9
+
+    V                              shift and go to state 57
+
+state 32
+
+    (38) E -> V TIMES . FLOAT
+    (39) E -> V TIMES . INT
+    (40) E -> V TIMES . V
+    (50) V -> . TYPE ID IS INT SEMICOLON
+    (51) V -> . TYPE ID IS FLOAT SEMICOLON
+    (52) V -> . TYPE ID IS ARRAY R SEMICOLON
+
+    FLOAT           shift and go to state 61
+    INT             shift and go to state 62
+    TYPE            shift and go to state 9
+
+    V                              shift and go to state 60
+
+state 33
+
+    (41) E -> V GTE . V
+    (42) E -> V GTE . INT
+    (43) E -> V GTE . FLOAT
+    (50) V -> . TYPE ID IS INT SEMICOLON
+    (51) V -> . TYPE ID IS FLOAT SEMICOLON
+    (52) V -> . TYPE ID IS ARRAY R SEMICOLON
+
+    INT             shift and go to state 64
+    FLOAT           shift and go to state 65
+    TYPE            shift and go to state 9
+
+    V                              shift and go to state 63
+
+state 34
+
+    (44) E -> V LTE . V
+    (45) E -> V LTE . INT
+    (46) E -> V LTE . FLOAT
+    (50) V -> . TYPE ID IS INT SEMICOLON
+    (51) V -> . TYPE ID IS FLOAT SEMICOLON
+    (52) V -> . TYPE ID IS ARRAY R SEMICOLON
+
+    INT             shift and go to state 67
+    FLOAT           shift and go to state 68
+    TYPE            shift and go to state 9
+
+    V                              shift and go to state 66
+
+state 35
+
+    (4) S -> FOR V IN . R LOOP S END LOOP SEMICOLON
+    (5) S -> FOR V IN . R LOOP A END LOOP SEMICOLON
+    (47) R -> . BRAOPEN INT SUSPENSIVE INT BRACLOSE
+    (48) R -> . BRAOPEN INT SUSPENSIVE INT COMMA INT SUSPENSIVE INT BRACLOSE
+    (49) R -> . BRAOPEN INT SUSPENSIVE INT COMMA INT SUSPENSIVE INT COMMA INT SUSPENSIVE INT BRACLOSE
+
+    BRAOPEN         shift and go to state 70
+
+    R                              shift and go to state 69
+
+state 36
+
+    (6) S -> IF E THEN . S ELSIF S END IF SEMICOLON
+    (7) S -> IF E THEN . S ELSE S END IF SEMICOLON
+    (8) S -> IF E THEN . S END IF SEMICOLON
+    (9) S -> IF E THEN . S ELSIF A END IF SEMICOLON
+    (10) S -> IF E THEN . S ELSE A END IF SEMICOLON
+    (11) S -> IF E THEN . A END IF SEMICOLON
+    (12) S -> IF E THEN . A ELSIF S END IF SEMICOLON
+    (13) S -> IF E THEN . A ELSE S END IF SEMICOLON
+    (14) S -> IF E THEN . A ELSIF A END IF SEMICOLON
+    (15) S -> IF E THEN . A ELSE A END IF SEMICOLON
+    (2) S -> . WHILE E LOOP S END LOOP SEMICOLON
+    (3) S -> . WHILE E LOOP A END LOOP SEMICOLON
+    (4) S -> . FOR V IN R LOOP S END LOOP SEMICOLON
+    (5) S -> . FOR V IN R LOOP A END LOOP SEMICOLON
+    (6) S -> . IF E THEN S ELSIF S END IF SEMICOLON
+    (7) S -> . IF E THEN S ELSE S END IF SEMICOLON
+    (8) S -> . IF E THEN S END IF SEMICOLON
+    (9) S -> . IF E THEN S ELSIF A END IF SEMICOLON
+    (10) S -> . IF E THEN S ELSE A END IF SEMICOLON
+    (11) S -> . IF E THEN A END IF SEMICOLON
+    (12) S -> . IF E THEN A ELSIF S END IF SEMICOLON
+    (13) S -> . IF E THEN A ELSE S END IF SEMICOLON
+    (14) S -> . IF E THEN A ELSIF A END IF SEMICOLON
+    (15) S -> . IF E THEN A ELSE A END IF SEMICOLON
+    (16) A -> . V ASSIGN E SEMICOLON
+    (17) A -> . V ASSIGN FLOAT SEMICOLON
+    (18) A -> . V ASSIGN INT SEMICOLON
+    (50) V -> . TYPE ID IS INT SEMICOLON
+    (51) V -> . TYPE ID IS FLOAT SEMICOLON
+    (52) V -> . TYPE ID IS ARRAY R SEMICOLON
+
+    WHILE           shift and go to state 12
+    FOR             shift and go to state 13
+    IF              shift and go to state 14
+    TYPE            shift and go to state 9
+
+    S                              shift and go to state 71
+    A                              shift and go to state 72
+    V                              shift and go to state 42
+
+state 37
+
+    (50) V -> TYPE ID IS INT . SEMICOLON
+
+    SEMICOLON       shift and go to state 73
+
+
+state 38
+
+    (51) V -> TYPE ID IS FLOAT . SEMICOLON
+
+    SEMICOLON       shift and go to state 74
+
+
+state 39
+
+    (52) V -> TYPE ID IS ARRAY . R SEMICOLON
+    (47) R -> . BRAOPEN INT SUSPENSIVE INT BRACLOSE
+    (48) R -> . BRAOPEN INT SUSPENSIVE INT COMMA INT SUSPENSIVE INT BRACLOSE
+    (49) R -> . BRAOPEN INT SUSPENSIVE INT COMMA INT SUSPENSIVE INT COMMA INT SUSPENSIVE INT BRACLOSE
+
+    BRAOPEN         shift and go to state 70
+
+    R                              shift and go to state 75
+
+state 40
+
+    (2) S -> WHILE E LOOP S . END LOOP SEMICOLON
+
+    END             shift and go to state 76
+
+
+state 41
+
+    (3) S -> WHILE E LOOP A . END LOOP SEMICOLON
+
+    END             shift and go to state 77
+
+
+state 42
+
+    (16) A -> V . ASSIGN E SEMICOLON
+    (17) A -> V . ASSIGN FLOAT SEMICOLON
+    (18) A -> V . ASSIGN INT SEMICOLON
+
+    ASSIGN          shift and go to state 78
+
+
+state 43
+
+    (23) E -> V GT V .
+
+    LOOP            reduce using rule 23 (E -> V GT V .)
+    THEN            reduce using rule 23 (E -> V GT V .)
+    SEMICOLON       reduce using rule 23 (E -> V GT V .)
+
+
+state 44
+
+    (21) E -> V GT FLOAT .
+
+    LOOP            reduce using rule 21 (E -> V GT FLOAT .)
+    THEN            reduce using rule 21 (E -> V GT FLOAT .)
+    SEMICOLON       reduce using rule 21 (E -> V GT FLOAT .)
+
+
+state 45
+
+    (22) E -> V GT INT .
+
+    LOOP            reduce using rule 22 (E -> V GT INT .)
+    THEN            reduce using rule 22 (E -> V GT INT .)
+    SEMICOLON       reduce using rule 22 (E -> V GT INT .)
+
+
+state 46
+
+    (26) E -> V LT V .
+
+    LOOP            reduce using rule 26 (E -> V LT V .)
+    THEN            reduce using rule 26 (E -> V LT V .)
+    SEMICOLON       reduce using rule 26 (E -> V LT V .)
+
+
+state 47
+
+    (24) E -> V LT FLOAT .
+
+    LOOP            reduce using rule 24 (E -> V LT FLOAT .)
+    THEN            reduce using rule 24 (E -> V LT FLOAT .)
+    SEMICOLON       reduce using rule 24 (E -> V LT FLOAT .)
+
+
+state 48
+
+    (25) E -> V LT INT .
+
+    LOOP            reduce using rule 25 (E -> V LT INT .)
+    THEN            reduce using rule 25 (E -> V LT INT .)
+    SEMICOLON       reduce using rule 25 (E -> V LT INT .)
+
+
+state 49
+
+    (27) E -> V EQUAL FLOAT .
+
+    LOOP            reduce using rule 27 (E -> V EQUAL FLOAT .)
+    THEN            reduce using rule 27 (E -> V EQUAL FLOAT .)
+    SEMICOLON       reduce using rule 27 (E -> V EQUAL FLOAT .)
+
+
+state 50
+
+    (28) E -> V EQUAL INT .
+
+    LOOP            reduce using rule 28 (E -> V EQUAL INT .)
+    THEN            reduce using rule 28 (E -> V EQUAL INT .)
+    SEMICOLON       reduce using rule 28 (E -> V EQUAL INT .)
+
+
+state 51
+
+    (31) E -> V PLUS V .
+
+    LOOP            reduce using rule 31 (E -> V PLUS V .)
+    THEN            reduce using rule 31 (E -> V PLUS V .)
+    SEMICOLON       reduce using rule 31 (E -> V PLUS V .)
+
+
+state 52
+
+    (29) E -> V PLUS FLOAT .
+
+    LOOP            reduce using rule 29 (E -> V PLUS FLOAT .)
+    THEN            reduce using rule 29 (E -> V PLUS FLOAT .)
+    SEMICOLON       reduce using rule 29 (E -> V PLUS FLOAT .)
+
+
+state 53
+
+    (30) E -> V PLUS INT .
+
+    LOOP            reduce using rule 30 (E -> V PLUS INT .)
+    THEN            reduce using rule 30 (E -> V PLUS INT .)
+    SEMICOLON       reduce using rule 30 (E -> V PLUS INT .)
+
+
+state 54
+
+    (34) E -> V MINUS V .
+
+    LOOP            reduce using rule 34 (E -> V MINUS V .)
+    THEN            reduce using rule 34 (E -> V MINUS V .)
+    SEMICOLON       reduce using rule 34 (E -> V MINUS V .)
+
+
+state 55
+
+    (32) E -> V MINUS FLOAT .
+
+    LOOP            reduce using rule 32 (E -> V MINUS FLOAT .)
+    THEN            reduce using rule 32 (E -> V MINUS FLOAT .)
+    SEMICOLON       reduce using rule 32 (E -> V MINUS FLOAT .)
+
+
+state 56
+
+    (33) E -> V MINUS INT .
+
+    LOOP            reduce using rule 33 (E -> V MINUS INT .)
+    THEN            reduce using rule 33 (E -> V MINUS INT .)
+    SEMICOLON       reduce using rule 33 (E -> V MINUS INT .)
+
+
+state 57
+
+    (37) E -> V DIVIDE V .
+
+    LOOP            reduce using rule 37 (E -> V DIVIDE V .)
+    THEN            reduce using rule 37 (E -> V DIVIDE V .)
+    SEMICOLON       reduce using rule 37 (E -> V DIVIDE V .)
+
+
+state 58
+
+    (35) E -> V DIVIDE FLOAT .
+
+    LOOP            reduce using rule 35 (E -> V DIVIDE FLOAT .)
+    THEN            reduce using rule 35 (E -> V DIVIDE FLOAT .)
+    SEMICOLON       reduce using rule 35 (E -> V DIVIDE FLOAT .)
+
+
+state 59
+
+    (36) E -> V DIVIDE INT .
+
+    LOOP            reduce using rule 36 (E -> V DIVIDE INT .)
+    THEN            reduce using rule 36 (E -> V DIVIDE INT .)
+    SEMICOLON       reduce using rule 36 (E -> V DIVIDE INT .)
+
+
+state 60
+
+    (40) E -> V TIMES V .
+
+    LOOP            reduce using rule 40 (E -> V TIMES V .)
+    THEN            reduce using rule 40 (E -> V TIMES V .)
+    SEMICOLON       reduce using rule 40 (E -> V TIMES V .)
+
+
+state 61
+
+    (38) E -> V TIMES FLOAT .
+
+    LOOP            reduce using rule 38 (E -> V TIMES FLOAT .)
+    THEN            reduce using rule 38 (E -> V TIMES FLOAT .)
+    SEMICOLON       reduce using rule 38 (E -> V TIMES FLOAT .)
+
+
+state 62
+
+    (39) E -> V TIMES INT .
+
+    LOOP            reduce using rule 39 (E -> V TIMES INT .)
+    THEN            reduce using rule 39 (E -> V TIMES INT .)
+    SEMICOLON       reduce using rule 39 (E -> V TIMES INT .)
+
+
+state 63
+
+    (41) E -> V GTE V .
+
+    LOOP            reduce using rule 41 (E -> V GTE V .)
+    THEN            reduce using rule 41 (E -> V GTE V .)
+    SEMICOLON       reduce using rule 41 (E -> V GTE V .)
+
+
+state 64
+
+    (42) E -> V GTE INT .
+
+    LOOP            reduce using rule 42 (E -> V GTE INT .)
+    THEN            reduce using rule 42 (E -> V GTE INT .)
+    SEMICOLON       reduce using rule 42 (E -> V GTE INT .)
+
+
+state 65
+
+    (43) E -> V GTE FLOAT .
+
+    LOOP            reduce using rule 43 (E -> V GTE FLOAT .)
+    THEN            reduce using rule 43 (E -> V GTE FLOAT .)
+    SEMICOLON       reduce using rule 43 (E -> V GTE FLOAT .)
+
+
+state 66
+
+    (44) E -> V LTE V .
+
+    LOOP            reduce using rule 44 (E -> V LTE V .)
+    THEN            reduce using rule 44 (E -> V LTE V .)
+    SEMICOLON       reduce using rule 44 (E -> V LTE V .)
+
+
+state 67
+
+    (45) E -> V LTE INT .
+
+    LOOP            reduce using rule 45 (E -> V LTE INT .)
+    THEN            reduce using rule 45 (E -> V LTE INT .)
+    SEMICOLON       reduce using rule 45 (E -> V LTE INT .)
+
+
+state 68
+
+    (46) E -> V LTE FLOAT .
+
+    LOOP            reduce using rule 46 (E -> V LTE FLOAT .)
+    THEN            reduce using rule 46 (E -> V LTE FLOAT .)
+    SEMICOLON       reduce using rule 46 (E -> V LTE FLOAT .)
+
+
+state 69
+
+    (4) S -> FOR V IN R . LOOP S END LOOP SEMICOLON
+    (5) S -> FOR V IN R . LOOP A END LOOP SEMICOLON
+
+    LOOP            shift and go to state 79
+
+
+state 70
+
+    (47) R -> BRAOPEN . INT SUSPENSIVE INT BRACLOSE
+    (48) R -> BRAOPEN . INT SUSPENSIVE INT COMMA INT SUSPENSIVE INT BRACLOSE
+    (49) R -> BRAOPEN . INT SUSPENSIVE INT COMMA INT SUSPENSIVE INT COMMA INT SUSPENSIVE INT BRACLOSE
+
+    INT             shift and go to state 80
+
+
+state 71
+
+    (6) S -> IF E THEN S . ELSIF S END IF SEMICOLON
+    (7) S -> IF E THEN S . ELSE S END IF SEMICOLON
+    (8) S -> IF E THEN S . END IF SEMICOLON
+    (9) S -> IF E THEN S . ELSIF A END IF SEMICOLON
+    (10) S -> IF E THEN S . ELSE A END IF SEMICOLON
+
+    ELSIF           shift and go to state 81
+    ELSE            shift and go to state 83
+    END             shift and go to state 82
+
+
+state 72
+
+    (11) S -> IF E THEN A . END IF SEMICOLON
+    (12) S -> IF E THEN A . ELSIF S END IF SEMICOLON
+    (13) S -> IF E THEN A . ELSE S END IF SEMICOLON
+    (14) S -> IF E THEN A . ELSIF A END IF SEMICOLON
+    (15) S -> IF E THEN A . ELSE A END IF SEMICOLON
+
+    END             shift and go to state 84
+    ELSIF           shift and go to state 85
+    ELSE            shift and go to state 86
+
+
+state 73
+
+    (50) V -> TYPE ID IS INT SEMICOLON .
+
+    END             reduce using rule 50 (V -> TYPE ID IS INT SEMICOLON .)
+    GT              reduce using rule 50 (V -> TYPE ID IS INT SEMICOLON .)
+    LT              reduce using rule 50 (V -> TYPE ID IS INT SEMICOLON .)
+    EQUAL           reduce using rule 50 (V -> TYPE ID IS INT SEMICOLON .)
+    PLUS            reduce using rule 50 (V -> TYPE ID IS INT SEMICOLON .)
+    MINUS           reduce using rule 50 (V -> TYPE ID IS INT SEMICOLON .)
+    DIVIDE          reduce using rule 50 (V -> TYPE ID IS INT SEMICOLON .)
+    TIMES           reduce using rule 50 (V -> TYPE ID IS INT SEMICOLON .)
+    GTE             reduce using rule 50 (V -> TYPE ID IS INT SEMICOLON .)
+    LTE             reduce using rule 50 (V -> TYPE ID IS INT SEMICOLON .)
+    IN              reduce using rule 50 (V -> TYPE ID IS INT SEMICOLON .)
+    ASSIGN          reduce using rule 50 (V -> TYPE ID IS INT SEMICOLON .)
+    LOOP            reduce using rule 50 (V -> TYPE ID IS INT SEMICOLON .)
+    THEN            reduce using rule 50 (V -> TYPE ID IS INT SEMICOLON .)
+    SEMICOLON       reduce using rule 50 (V -> TYPE ID IS INT SEMICOLON .)
+
+
+state 74
+
+    (51) V -> TYPE ID IS FLOAT SEMICOLON .
+
+    END             reduce using rule 51 (V -> TYPE ID IS FLOAT SEMICOLON .)
+    GT              reduce using rule 51 (V -> TYPE ID IS FLOAT SEMICOLON .)
+    LT              reduce using rule 51 (V -> TYPE ID IS FLOAT SEMICOLON .)
+    EQUAL           reduce using rule 51 (V -> TYPE ID IS FLOAT SEMICOLON .)
+    PLUS            reduce using rule 51 (V -> TYPE ID IS FLOAT SEMICOLON .)
+    MINUS           reduce using rule 51 (V -> TYPE ID IS FLOAT SEMICOLON .)
+    DIVIDE          reduce using rule 51 (V -> TYPE ID IS FLOAT SEMICOLON .)
+    TIMES           reduce using rule 51 (V -> TYPE ID IS FLOAT SEMICOLON .)
+    GTE             reduce using rule 51 (V -> TYPE ID IS FLOAT SEMICOLON .)
+    LTE             reduce using rule 51 (V -> TYPE ID IS FLOAT SEMICOLON .)
+    IN              reduce using rule 51 (V -> TYPE ID IS FLOAT SEMICOLON .)
+    ASSIGN          reduce using rule 51 (V -> TYPE ID IS FLOAT SEMICOLON .)
+    LOOP            reduce using rule 51 (V -> TYPE ID IS FLOAT SEMICOLON .)
+    THEN            reduce using rule 51 (V -> TYPE ID IS FLOAT SEMICOLON .)
+    SEMICOLON       reduce using rule 51 (V -> TYPE ID IS FLOAT SEMICOLON .)
+
+
+state 75
+
+    (52) V -> TYPE ID IS ARRAY R . SEMICOLON
+
+    SEMICOLON       shift and go to state 87
+
+
+state 76
+
+    (2) S -> WHILE E LOOP S END . LOOP SEMICOLON
+
+    LOOP            shift and go to state 88
+
+
+state 77
+
+    (3) S -> WHILE E LOOP A END . LOOP SEMICOLON
+
+    LOOP            shift and go to state 89
+
+
+state 78
+
+    (16) A -> V ASSIGN . E SEMICOLON
+    (17) A -> V ASSIGN . FLOAT SEMICOLON
+    (18) A -> V ASSIGN . INT SEMICOLON
+    (21) E -> . V GT FLOAT
+    (22) E -> . V GT INT
+    (23) E -> . V GT V
+    (24) E -> . V LT FLOAT
+    (25) E -> . V LT INT
+    (26) E -> . V LT V
+    (27) E -> . V EQUAL FLOAT
+    (28) E -> . V EQUAL INT
+    (29) E -> . V PLUS FLOAT
+    (30) E -> . V PLUS INT
+    (31) E -> . V PLUS V
+    (32) E -> . V MINUS FLOAT
+    (33) E -> . V MINUS INT
+    (34) E -> . V MINUS V
+    (35) E -> . V DIVIDE FLOAT
+    (36) E -> . V DIVIDE INT
+    (37) E -> . V DIVIDE V
+    (38) E -> . V TIMES FLOAT
+    (39) E -> . V TIMES INT
+    (40) E -> . V TIMES V
+    (41) E -> . V GTE V
+    (42) E -> . V GTE INT
+    (43) E -> . V GTE FLOAT
+    (44) E -> . V LTE V
+    (45) E -> . V LTE INT
+    (46) E -> . V LTE FLOAT
+    (50) V -> . TYPE ID IS INT SEMICOLON
+    (51) V -> . TYPE ID IS FLOAT SEMICOLON
+    (52) V -> . TYPE ID IS ARRAY R SEMICOLON
+
+    FLOAT           shift and go to state 91
+    INT             shift and go to state 92
+    TYPE            shift and go to state 9
+
+    V                              shift and go to state 19
+    E                              shift and go to state 90
+
+state 79
+
+    (4) S -> FOR V IN R LOOP . S END LOOP SEMICOLON
+    (5) S -> FOR V IN R LOOP . A END LOOP SEMICOLON
+    (2) S -> . WHILE E LOOP S END LOOP SEMICOLON
+    (3) S -> . WHILE E LOOP A END LOOP SEMICOLON
+    (4) S -> . FOR V IN R LOOP S END LOOP SEMICOLON
+    (5) S -> . FOR V IN R LOOP A END LOOP SEMICOLON
+    (6) S -> . IF E THEN S ELSIF S END IF SEMICOLON
+    (7) S -> . IF E THEN S ELSE S END IF SEMICOLON
+    (8) S -> . IF E THEN S END IF SEMICOLON
+    (9) S -> . IF E THEN S ELSIF A END IF SEMICOLON
+    (10) S -> . IF E THEN S ELSE A END IF SEMICOLON
+    (11) S -> . IF E THEN A END IF SEMICOLON
+    (12) S -> . IF E THEN A ELSIF S END IF SEMICOLON
+    (13) S -> . IF E THEN A ELSE S END IF SEMICOLON
+    (14) S -> . IF E THEN A ELSIF A END IF SEMICOLON
+    (15) S -> . IF E THEN A ELSE A END IF SEMICOLON
+    (16) A -> . V ASSIGN E SEMICOLON
+    (17) A -> . V ASSIGN FLOAT SEMICOLON
+    (18) A -> . V ASSIGN INT SEMICOLON
+    (50) V -> . TYPE ID IS INT SEMICOLON
+    (51) V -> . TYPE ID IS FLOAT SEMICOLON
+    (52) V -> . TYPE ID IS ARRAY R SEMICOLON
+
+    WHILE           shift and go to state 12
+    FOR             shift and go to state 13
+    IF              shift and go to state 14
+    TYPE            shift and go to state 9
+
+    V                              shift and go to state 42
+    S                              shift and go to state 93
+    A                              shift and go to state 94
+
+state 80
+
+    (47) R -> BRAOPEN INT . SUSPENSIVE INT BRACLOSE
+    (48) R -> BRAOPEN INT . SUSPENSIVE INT COMMA INT SUSPENSIVE INT BRACLOSE
+    (49) R -> BRAOPEN INT . SUSPENSIVE INT COMMA INT SUSPENSIVE INT COMMA INT SUSPENSIVE INT BRACLOSE
+
+    SUSPENSIVE      shift and go to state 95
+
+
+state 81
+
+    (6) S -> IF E THEN S ELSIF . S END IF SEMICOLON
+    (9) S -> IF E THEN S ELSIF . A END IF SEMICOLON
+    (2) S -> . WHILE E LOOP S END LOOP SEMICOLON
+    (3) S -> . WHILE E LOOP A END LOOP SEMICOLON
+    (4) S -> . FOR V IN R LOOP S END LOOP SEMICOLON
+    (5) S -> . FOR V IN R LOOP A END LOOP SEMICOLON
+    (6) S -> . IF E THEN S ELSIF S END IF SEMICOLON
+    (7) S -> . IF E THEN S ELSE S END IF SEMICOLON
+    (8) S -> . IF E THEN S END IF SEMICOLON
+    (9) S -> . IF E THEN S ELSIF A END IF SEMICOLON
+    (10) S -> . IF E THEN S ELSE A END IF SEMICOLON
+    (11) S -> . IF E THEN A END IF SEMICOLON
+    (12) S -> . IF E THEN A ELSIF S END IF SEMICOLON
+    (13) S -> . IF E THEN A ELSE S END IF SEMICOLON
+    (14) S -> . IF E THEN A ELSIF A END IF SEMICOLON
+    (15) S -> . IF E THEN A ELSE A END IF SEMICOLON
+    (16) A -> . V ASSIGN E SEMICOLON
+    (17) A -> . V ASSIGN FLOAT SEMICOLON
+    (18) A -> . V ASSIGN INT SEMICOLON
+    (50) V -> . TYPE ID IS INT SEMICOLON
+    (51) V -> . TYPE ID IS FLOAT SEMICOLON
+    (52) V -> . TYPE ID IS ARRAY R SEMICOLON
+
+    WHILE           shift and go to state 12
+    FOR             shift and go to state 13
+    IF              shift and go to state 14
+    TYPE            shift and go to state 9
+
+    S                              shift and go to state 96
+    A                              shift and go to state 97
+    V                              shift and go to state 42
+
+state 82
+
+    (8) S -> IF E THEN S END . IF SEMICOLON
+
+    IF              shift and go to state 98
+
+
+state 83
+
+    (7) S -> IF E THEN S ELSE . S END IF SEMICOLON
+    (10) S -> IF E THEN S ELSE . A END IF SEMICOLON
+    (2) S -> . WHILE E LOOP S END LOOP SEMICOLON
+    (3) S -> . WHILE E LOOP A END LOOP SEMICOLON
+    (4) S -> . FOR V IN R LOOP S END LOOP SEMICOLON
+    (5) S -> . FOR V IN R LOOP A END LOOP SEMICOLON
+    (6) S -> . IF E THEN S ELSIF S END IF SEMICOLON
+    (7) S -> . IF E THEN S ELSE S END IF SEMICOLON
+    (8) S -> . IF E THEN S END IF SEMICOLON
+    (9) S -> . IF E THEN S ELSIF A END IF SEMICOLON
+    (10) S -> . IF E THEN S ELSE A END IF SEMICOLON
+    (11) S -> . IF E THEN A END IF SEMICOLON
+    (12) S -> . IF E THEN A ELSIF S END IF SEMICOLON
+    (13) S -> . IF E THEN A ELSE S END IF SEMICOLON
+    (14) S -> . IF E THEN A ELSIF A END IF SEMICOLON
+    (15) S -> . IF E THEN A ELSE A END IF SEMICOLON
+    (16) A -> . V ASSIGN E SEMICOLON
+    (17) A -> . V ASSIGN FLOAT SEMICOLON
+    (18) A -> . V ASSIGN INT SEMICOLON
+    (50) V -> . TYPE ID IS INT SEMICOLON
+    (51) V -> . TYPE ID IS FLOAT SEMICOLON
+    (52) V -> . TYPE ID IS ARRAY R SEMICOLON
+
+    WHILE           shift and go to state 12
+    FOR             shift and go to state 13
+    IF              shift and go to state 14
+    TYPE            shift and go to state 9
+
+    S                              shift and go to state 99
+    A                              shift and go to state 100
+    V                              shift and go to state 42
+
+state 84
+
+    (11) S -> IF E THEN A END . IF SEMICOLON
+
+    IF              shift and go to state 101
+
+
+state 85
+
+    (12) S -> IF E THEN A ELSIF . S END IF SEMICOLON
+    (14) S -> IF E THEN A ELSIF . A END IF SEMICOLON
+    (2) S -> . WHILE E LOOP S END LOOP SEMICOLON
+    (3) S -> . WHILE E LOOP A END LOOP SEMICOLON
+    (4) S -> . FOR V IN R LOOP S END LOOP SEMICOLON
+    (5) S -> . FOR V IN R LOOP A END LOOP SEMICOLON
+    (6) S -> . IF E THEN S ELSIF S END IF SEMICOLON
+    (7) S -> . IF E THEN S ELSE S END IF SEMICOLON
+    (8) S -> . IF E THEN S END IF SEMICOLON
+    (9) S -> . IF E THEN S ELSIF A END IF SEMICOLON
+    (10) S -> . IF E THEN S ELSE A END IF SEMICOLON
+    (11) S -> . IF E THEN A END IF SEMICOLON
+    (12) S -> . IF E THEN A ELSIF S END IF SEMICOLON
+    (13) S -> . IF E THEN A ELSE S END IF SEMICOLON
+    (14) S -> . IF E THEN A ELSIF A END IF SEMICOLON
+    (15) S -> . IF E THEN A ELSE A END IF SEMICOLON
+    (16) A -> . V ASSIGN E SEMICOLON
+    (17) A -> . V ASSIGN FLOAT SEMICOLON
+    (18) A -> . V ASSIGN INT SEMICOLON
+    (50) V -> . TYPE ID IS INT SEMICOLON
+    (51) V -> . TYPE ID IS FLOAT SEMICOLON
+    (52) V -> . TYPE ID IS ARRAY R SEMICOLON
+
+    WHILE           shift and go to state 12
+    FOR             shift and go to state 13
+    IF              shift and go to state 14
+    TYPE            shift and go to state 9
+
+    A                              shift and go to state 102
+    S                              shift and go to state 103
+    V                              shift and go to state 42
+
+state 86
+
+    (13) S -> IF E THEN A ELSE . S END IF SEMICOLON
+    (15) S -> IF E THEN A ELSE . A END IF SEMICOLON
+    (2) S -> . WHILE E LOOP S END LOOP SEMICOLON
+    (3) S -> . WHILE E LOOP A END LOOP SEMICOLON
+    (4) S -> . FOR V IN R LOOP S END LOOP SEMICOLON
+    (5) S -> . FOR V IN R LOOP A END LOOP SEMICOLON
+    (6) S -> . IF E THEN S ELSIF S END IF SEMICOLON
+    (7) S -> . IF E THEN S ELSE S END IF SEMICOLON
+    (8) S -> . IF E THEN S END IF SEMICOLON
+    (9) S -> . IF E THEN S ELSIF A END IF SEMICOLON
+    (10) S -> . IF E THEN S ELSE A END IF SEMICOLON
+    (11) S -> . IF E THEN A END IF SEMICOLON
+    (12) S -> . IF E THEN A ELSIF S END IF SEMICOLON
+    (13) S -> . IF E THEN A ELSE S END IF SEMICOLON
+    (14) S -> . IF E THEN A ELSIF A END IF SEMICOLON
+    (15) S -> . IF E THEN A ELSE A END IF SEMICOLON
+    (16) A -> . V ASSIGN E SEMICOLON
+    (17) A -> . V ASSIGN FLOAT SEMICOLON
+    (18) A -> . V ASSIGN INT SEMICOLON
+    (50) V -> . TYPE ID IS INT SEMICOLON
+    (51) V -> . TYPE ID IS FLOAT SEMICOLON
+    (52) V -> . TYPE ID IS ARRAY R SEMICOLON
+
+    WHILE           shift and go to state 12
+    FOR             shift and go to state 13
+    IF              shift and go to state 14
+    TYPE            shift and go to state 9
+
+    A                              shift and go to state 104
+    S                              shift and go to state 105
+    V                              shift and go to state 42
+
+state 87
+
+    (52) V -> TYPE ID IS ARRAY R SEMICOLON .
+
+    END             reduce using rule 52 (V -> TYPE ID IS ARRAY R SEMICOLON .)
+    GT              reduce using rule 52 (V -> TYPE ID IS ARRAY R SEMICOLON .)
+    LT              reduce using rule 52 (V -> TYPE ID IS ARRAY R SEMICOLON .)
+    EQUAL           reduce using rule 52 (V -> TYPE ID IS ARRAY R SEMICOLON .)
+    PLUS            reduce using rule 52 (V -> TYPE ID IS ARRAY R SEMICOLON .)
+    MINUS           reduce using rule 52 (V -> TYPE ID IS ARRAY R SEMICOLON .)
+    DIVIDE          reduce using rule 52 (V -> TYPE ID IS ARRAY R SEMICOLON .)
+    TIMES           reduce using rule 52 (V -> TYPE ID IS ARRAY R SEMICOLON .)
+    GTE             reduce using rule 52 (V -> TYPE ID IS ARRAY R SEMICOLON .)
+    LTE             reduce using rule 52 (V -> TYPE ID IS ARRAY R SEMICOLON .)
+    IN              reduce using rule 52 (V -> TYPE ID IS ARRAY R SEMICOLON .)
+    ASSIGN          reduce using rule 52 (V -> TYPE ID IS ARRAY R SEMICOLON .)
+    LOOP            reduce using rule 52 (V -> TYPE ID IS ARRAY R SEMICOLON .)
+    THEN            reduce using rule 52 (V -> TYPE ID IS ARRAY R SEMICOLON .)
+    SEMICOLON       reduce using rule 52 (V -> TYPE ID IS ARRAY R SEMICOLON .)
+
+
+state 88
+
+    (2) S -> WHILE E LOOP S END LOOP . SEMICOLON
+
+    SEMICOLON       shift and go to state 106
+
+
+state 89
+
+    (3) S -> WHILE E LOOP A END LOOP . SEMICOLON
+
+    SEMICOLON       shift and go to state 107
+
+
+state 90
+
+    (16) A -> V ASSIGN E . SEMICOLON
+
+    SEMICOLON       shift and go to state 108
+
+
+state 91
+
+    (17) A -> V ASSIGN FLOAT . SEMICOLON
+
+    SEMICOLON       shift and go to state 109
+
+
+state 92
+
+    (18) A -> V ASSIGN INT . SEMICOLON
+
+    SEMICOLON       shift and go to state 110
+
+
+state 93
+
+    (4) S -> FOR V IN R LOOP S . END LOOP SEMICOLON
+
+    END             shift and go to state 111
+
+
+state 94
+
+    (5) S -> FOR V IN R LOOP A . END LOOP SEMICOLON
+
+    END             shift and go to state 112
+
+
+state 95
+
+    (47) R -> BRAOPEN INT SUSPENSIVE . INT BRACLOSE
+    (48) R -> BRAOPEN INT SUSPENSIVE . INT COMMA INT SUSPENSIVE INT BRACLOSE
+    (49) R -> BRAOPEN INT SUSPENSIVE . INT COMMA INT SUSPENSIVE INT COMMA INT SUSPENSIVE INT BRACLOSE
+
+    INT             shift and go to state 113
+
+
+state 96
+
+    (6) S -> IF E THEN S ELSIF S . END IF SEMICOLON
+
+    END             shift and go to state 114
+
+
+state 97
+
+    (9) S -> IF E THEN S ELSIF A . END IF SEMICOLON
+
+    END             shift and go to state 115
+
+
+state 98
+
+    (8) S -> IF E THEN S END IF . SEMICOLON
+
+    SEMICOLON       shift and go to state 116
+
+
+state 99
+
+    (7) S -> IF E THEN S ELSE S . END IF SEMICOLON
+
+    END             shift and go to state 117
+
+
+state 100
+
+    (10) S -> IF E THEN S ELSE A . END IF SEMICOLON
+
+    END             shift and go to state 118
+
+
+state 101
+
+    (11) S -> IF E THEN A END IF . SEMICOLON
+
+    SEMICOLON       shift and go to state 119
+
+
+state 102
+
+    (14) S -> IF E THEN A ELSIF A . END IF SEMICOLON
+
+    END             shift and go to state 120
+
+
+state 103
+
+    (12) S -> IF E THEN A ELSIF S . END IF SEMICOLON
+
+    END             shift and go to state 121
+
+
+state 104
+
+    (15) S -> IF E THEN A ELSE A . END IF SEMICOLON
+
+    END             shift and go to state 122
+
+
+state 105
+
+    (13) S -> IF E THEN A ELSE S . END IF SEMICOLON
+
+    END             shift and go to state 123
+
+
+state 106
+
+    (2) S -> WHILE E LOOP S END LOOP SEMICOLON .
+
+    END             reduce using rule 2 (S -> WHILE E LOOP S END LOOP SEMICOLON .)
+    ELSIF           reduce using rule 2 (S -> WHILE E LOOP S END LOOP SEMICOLON .)
+    ELSE            reduce using rule 2 (S -> WHILE E LOOP S END LOOP SEMICOLON .)
+
+
+state 107
+
+    (3) S -> WHILE E LOOP A END LOOP SEMICOLON .
+
+    END             reduce using rule 3 (S -> WHILE E LOOP A END LOOP SEMICOLON .)
+    ELSIF           reduce using rule 3 (S -> WHILE E LOOP A END LOOP SEMICOLON .)
+    ELSE            reduce using rule 3 (S -> WHILE E LOOP A END LOOP SEMICOLON .)
+
+
+state 108
+
+    (16) A -> V ASSIGN E SEMICOLON .
+
+    END             reduce using rule 16 (A -> V ASSIGN E SEMICOLON .)
+    ELSIF           reduce using rule 16 (A -> V ASSIGN E SEMICOLON .)
+    ELSE            reduce using rule 16 (A -> V ASSIGN E SEMICOLON .)
+
+
+state 109
+
+    (17) A -> V ASSIGN FLOAT SEMICOLON .
+
+    END             reduce using rule 17 (A -> V ASSIGN FLOAT SEMICOLON .)
+    ELSIF           reduce using rule 17 (A -> V ASSIGN FLOAT SEMICOLON .)
+    ELSE            reduce using rule 17 (A -> V ASSIGN FLOAT SEMICOLON .)
+
+
+state 110
+
+    (18) A -> V ASSIGN INT SEMICOLON .
+
+    END             reduce using rule 18 (A -> V ASSIGN INT SEMICOLON .)
+    ELSIF           reduce using rule 18 (A -> V ASSIGN INT SEMICOLON .)
+    ELSE            reduce using rule 18 (A -> V ASSIGN INT SEMICOLON .)
+
+
+state 111
+
+    (4) S -> FOR V IN R LOOP S END . LOOP SEMICOLON
+
+    LOOP            shift and go to state 124
+
+
+state 112
+
+    (5) S -> FOR V IN R LOOP A END . LOOP SEMICOLON
+
+    LOOP            shift and go to state 125
+
+
+state 113
+
+    (47) R -> BRAOPEN INT SUSPENSIVE INT . BRACLOSE
+    (48) R -> BRAOPEN INT SUSPENSIVE INT . COMMA INT SUSPENSIVE INT BRACLOSE
+    (49) R -> BRAOPEN INT SUSPENSIVE INT . COMMA INT SUSPENSIVE INT COMMA INT SUSPENSIVE INT BRACLOSE
+
+    BRACLOSE        shift and go to state 126
+    COMMA           shift and go to state 127
+
+
+state 114
+
+    (6) S -> IF E THEN S ELSIF S END . IF SEMICOLON
+
+    IF              shift and go to state 128
+
+
+state 115
+
+    (9) S -> IF E THEN S ELSIF A END . IF SEMICOLON
+
+    IF              shift and go to state 129
+
+
+state 116
+
+    (8) S -> IF E THEN S END IF SEMICOLON .
+
+    END             reduce using rule 8 (S -> IF E THEN S END IF SEMICOLON .)
+    ELSIF           reduce using rule 8 (S -> IF E THEN S END IF SEMICOLON .)
+    ELSE            reduce using rule 8 (S -> IF E THEN S END IF SEMICOLON .)
+
+
+state 117
+
+    (7) S -> IF E THEN S ELSE S END . IF SEMICOLON
+
+    IF              shift and go to state 130
+
+
+state 118
+
+    (10) S -> IF E THEN S ELSE A END . IF SEMICOLON
+
+    IF              shift and go to state 131
+
+
+state 119
+
+    (11) S -> IF E THEN A END IF SEMICOLON .
+
+    END             reduce using rule 11 (S -> IF E THEN A END IF SEMICOLON .)
+    ELSIF           reduce using rule 11 (S -> IF E THEN A END IF SEMICOLON .)
+    ELSE            reduce using rule 11 (S -> IF E THEN A END IF SEMICOLON .)
+
+
+state 120
+
+    (14) S -> IF E THEN A ELSIF A END . IF SEMICOLON
+
+    IF              shift and go to state 132
+
+
+state 121
+
+    (12) S -> IF E THEN A ELSIF S END . IF SEMICOLON
+
+    IF              shift and go to state 133
+
+
+state 122
+
+    (15) S -> IF E THEN A ELSE A END . IF SEMICOLON
+
+    IF              shift and go to state 134
+
+
+state 123
+
+    (13) S -> IF E THEN A ELSE S END . IF SEMICOLON
+
+    IF              shift and go to state 135
+
+
+state 124
+
+    (4) S -> FOR V IN R LOOP S END LOOP . SEMICOLON
+
+    SEMICOLON       shift and go to state 136
+
+
+state 125
+
+    (5) S -> FOR V IN R LOOP A END LOOP . SEMICOLON
+
+    SEMICOLON       shift and go to state 137
+
+
+state 126
+
+    (47) R -> BRAOPEN INT SUSPENSIVE INT BRACLOSE .
+
+    LOOP            reduce using rule 47 (R -> BRAOPEN INT SUSPENSIVE INT BRACLOSE .)
+    SEMICOLON       reduce using rule 47 (R -> BRAOPEN INT SUSPENSIVE INT BRACLOSE .)
+
+
+state 127
+
+    (48) R -> BRAOPEN INT SUSPENSIVE INT COMMA . INT SUSPENSIVE INT BRACLOSE
+    (49) R -> BRAOPEN INT SUSPENSIVE INT COMMA . INT SUSPENSIVE INT COMMA INT SUSPENSIVE INT BRACLOSE
+
+    INT             shift and go to state 138
+
+
+state 128
+
+    (6) S -> IF E THEN S ELSIF S END IF . SEMICOLON
+
+    SEMICOLON       shift and go to state 139
+
+
+state 129
+
+    (9) S -> IF E THEN S ELSIF A END IF . SEMICOLON
+
+    SEMICOLON       shift and go to state 140
+
+
+state 130
+
+    (7) S -> IF E THEN S ELSE S END IF . SEMICOLON
+
+    SEMICOLON       shift and go to state 141
+
+
+state 131
+
+    (10) S -> IF E THEN S ELSE A END IF . SEMICOLON
+
+    SEMICOLON       shift and go to state 142
+
+
+state 132
+
+    (14) S -> IF E THEN A ELSIF A END IF . SEMICOLON
+
+    SEMICOLON       shift and go to state 143
+
+
+state 133
+
+    (12) S -> IF E THEN A ELSIF S END IF . SEMICOLON
+
+    SEMICOLON       shift and go to state 144
+
+
+state 134
+
+    (15) S -> IF E THEN A ELSE A END IF . SEMICOLON
+
+    SEMICOLON       shift and go to state 145
+
+
+state 135
+
+    (13) S -> IF E THEN A ELSE S END IF . SEMICOLON
+
+    SEMICOLON       shift and go to state 146
+
+
+state 136
+
+    (4) S -> FOR V IN R LOOP S END LOOP SEMICOLON .
+
+    END             reduce using rule 4 (S -> FOR V IN R LOOP S END LOOP SEMICOLON .)
+    ELSIF           reduce using rule 4 (S -> FOR V IN R LOOP S END LOOP SEMICOLON .)
+    ELSE            reduce using rule 4 (S -> FOR V IN R LOOP S END LOOP SEMICOLON .)
+
+
+state 137
+
+    (5) S -> FOR V IN R LOOP A END LOOP SEMICOLON .
+
+    END             reduce using rule 5 (S -> FOR V IN R LOOP A END LOOP SEMICOLON .)
+    ELSIF           reduce using rule 5 (S -> FOR V IN R LOOP A END LOOP SEMICOLON .)
+    ELSE            reduce using rule 5 (S -> FOR V IN R LOOP A END LOOP SEMICOLON .)
+
+
+state 138
+
+    (48) R -> BRAOPEN INT SUSPENSIVE INT COMMA INT . SUSPENSIVE INT BRACLOSE
+    (49) R -> BRAOPEN INT SUSPENSIVE INT COMMA INT . SUSPENSIVE INT COMMA INT SUSPENSIVE INT BRACLOSE
+
+    SUSPENSIVE      shift and go to state 147
+
+
+state 139
+
+    (6) S -> IF E THEN S ELSIF S END IF SEMICOLON .
+
+    END             reduce using rule 6 (S -> IF E THEN S ELSIF S END IF SEMICOLON .)
+    ELSIF           reduce using rule 6 (S -> IF E THEN S ELSIF S END IF SEMICOLON .)
+    ELSE            reduce using rule 6 (S -> IF E THEN S ELSIF S END IF SEMICOLON .)
+
+
+state 140
+
+    (9) S -> IF E THEN S ELSIF A END IF SEMICOLON .
+
+    END             reduce using rule 9 (S -> IF E THEN S ELSIF A END IF SEMICOLON .)
+    ELSIF           reduce using rule 9 (S -> IF E THEN S ELSIF A END IF SEMICOLON .)
+    ELSE            reduce using rule 9 (S -> IF E THEN S ELSIF A END IF SEMICOLON .)
+
+
+state 141
+
+    (7) S -> IF E THEN S ELSE S END IF SEMICOLON .
+
+    END             reduce using rule 7 (S -> IF E THEN S ELSE S END IF SEMICOLON .)
+    ELSIF           reduce using rule 7 (S -> IF E THEN S ELSE S END IF SEMICOLON .)
+    ELSE            reduce using rule 7 (S -> IF E THEN S ELSE S END IF SEMICOLON .)
+
+
+state 142
+
+    (10) S -> IF E THEN S ELSE A END IF SEMICOLON .
+
+    END             reduce using rule 10 (S -> IF E THEN S ELSE A END IF SEMICOLON .)
+    ELSIF           reduce using rule 10 (S -> IF E THEN S ELSE A END IF SEMICOLON .)
+    ELSE            reduce using rule 10 (S -> IF E THEN S ELSE A END IF SEMICOLON .)
+
+
+state 143
+
+    (14) S -> IF E THEN A ELSIF A END IF SEMICOLON .
+
+    END             reduce using rule 14 (S -> IF E THEN A ELSIF A END IF SEMICOLON .)
+    ELSIF           reduce using rule 14 (S -> IF E THEN A ELSIF A END IF SEMICOLON .)
+    ELSE            reduce using rule 14 (S -> IF E THEN A ELSIF A END IF SEMICOLON .)
+
+
+state 144
+
+    (12) S -> IF E THEN A ELSIF S END IF SEMICOLON .
+
+    END             reduce using rule 12 (S -> IF E THEN A ELSIF S END IF SEMICOLON .)
+    ELSIF           reduce using rule 12 (S -> IF E THEN A ELSIF S END IF SEMICOLON .)
+    ELSE            reduce using rule 12 (S -> IF E THEN A ELSIF S END IF SEMICOLON .)
+
+
+state 145
+
+    (15) S -> IF E THEN A ELSE A END IF SEMICOLON .
+
+    END             reduce using rule 15 (S -> IF E THEN A ELSE A END IF SEMICOLON .)
+    ELSIF           reduce using rule 15 (S -> IF E THEN A ELSE A END IF SEMICOLON .)
+    ELSE            reduce using rule 15 (S -> IF E THEN A ELSE A END IF SEMICOLON .)
+
+
+state 146
+
+    (13) S -> IF E THEN A ELSE S END IF SEMICOLON .
+
+    END             reduce using rule 13 (S -> IF E THEN A ELSE S END IF SEMICOLON .)
+    ELSIF           reduce using rule 13 (S -> IF E THEN A ELSE S END IF SEMICOLON .)
+    ELSE            reduce using rule 13 (S -> IF E THEN A ELSE S END IF SEMICOLON .)
+
+
+state 147
+
+    (48) R -> BRAOPEN INT SUSPENSIVE INT COMMA INT SUSPENSIVE . INT BRACLOSE
+    (49) R -> BRAOPEN INT SUSPENSIVE INT COMMA INT SUSPENSIVE . INT COMMA INT SUSPENSIVE INT BRACLOSE
+
+    INT             shift and go to state 148
+
+
+state 148
+
+    (48) R -> BRAOPEN INT SUSPENSIVE INT COMMA INT SUSPENSIVE INT . BRACLOSE
+    (49) R -> BRAOPEN INT SUSPENSIVE INT COMMA INT SUSPENSIVE INT . COMMA INT SUSPENSIVE INT BRACLOSE
+
+    BRACLOSE        shift and go to state 150
+    COMMA           shift and go to state 149
+
+
+state 149
+
+    (49) R -> BRAOPEN INT SUSPENSIVE INT COMMA INT SUSPENSIVE INT COMMA . INT SUSPENSIVE INT BRACLOSE
+
+    INT             shift and go to state 151
+
+
+state 150
+
+    (48) R -> BRAOPEN INT SUSPENSIVE INT COMMA INT SUSPENSIVE INT BRACLOSE .
+
+    LOOP            reduce using rule 48 (R -> BRAOPEN INT SUSPENSIVE INT COMMA INT SUSPENSIVE INT BRACLOSE .)
+    SEMICOLON       reduce using rule 48 (R -> BRAOPEN INT SUSPENSIVE INT COMMA INT SUSPENSIVE INT BRACLOSE .)
+
+
+state 151
+
+    (49) R -> BRAOPEN INT SUSPENSIVE INT COMMA INT SUSPENSIVE INT COMMA INT . SUSPENSIVE INT BRACLOSE
+
+    SUSPENSIVE      shift and go to state 152
+
+
+state 152
+
+    (49) R -> BRAOPEN INT SUSPENSIVE INT COMMA INT SUSPENSIVE INT COMMA INT SUSPENSIVE . INT BRACLOSE
+
+    INT             shift and go to state 153
+
+
+state 153
+
+    (49) R -> BRAOPEN INT SUSPENSIVE INT COMMA INT SUSPENSIVE INT COMMA INT SUSPENSIVE INT . BRACLOSE
+
+    BRACLOSE        shift and go to state 154
+
+
+state 154
+
+    (49) R -> BRAOPEN INT SUSPENSIVE INT COMMA INT SUSPENSIVE INT COMMA INT SUSPENSIVE INT BRACLOSE .
+
+    LOOP            reduce using rule 49 (R -> BRAOPEN INT SUSPENSIVE INT COMMA INT SUSPENSIVE INT COMMA INT SUSPENSIVE INT BRACLOSE .)
+    SEMICOLON       reduce using rule 49 (R -> BRAOPEN INT SUSPENSIVE INT COMMA INT SUSPENSIVE INT COMMA INT SUSPENSIVE INT BRACLOSE .)
 

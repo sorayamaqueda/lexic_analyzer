@@ -25,7 +25,7 @@ reserved = {
     'is' : 'IS',
     'loop' : 'LOOP',
     'procedure' : 'PROCEDURE',
-    'range' : 'RANGE',
+    #'range' : 'RANGE',
     'type' : 'TYPE',
     'use' : 'USE',
     'with' : 'WITH',
@@ -79,11 +79,13 @@ names = { }
 def t_tab(t):
     r'\t'
     t.lexer.lineno += t.value.count('\t')
+    pass
 
 # New Line
 def t_newLine(t):
     r'\n'
     t.lexer.lineno += t.value.count('\n')
+    pass
 
 # Comment
 def t_comment(t):
@@ -235,10 +237,12 @@ def t_PROCEDURE(t):
     return t
 
 # range
-def t_RANGE(t):
-    isRangeRegex = '(\(+[0-9]+\.\.\.[0-9]+)+\,*([0-9]+\.\.\.[0-9]+)*\,*([0-9]+\.\.\.[0-9]+\)+)*'
-    ranges = re.search(t, isRangeRegex)
-    return t, re.search(t, isRangeRegex)
+# def t_RANGE(t):
+#     isRangeRegex = '(\(+[0-9]+\.\.\.[0-9]+)+\,*([0-9]+\.\.\.[0-9]+)*\,*([0-9]+\.\.\.[0-9]+\)+)*'
+#     ranges = re.search(isRangeRegex, t).group() # A string with the ranges is returned. 
+#                                                 # Example: (0...4) or (0...4,0...5) or (0...4,0...2,0...5)
+#     t.type = 'RANGE'
+#     return t, ranges
 
 # type
 def t_TYPE(t):
@@ -343,12 +347,14 @@ def call_loop(t):
     elif loopType == 'for' : for_loop(t)
     else : if_loop(t)
 
+    t[0] = t[1]
+
 def p_S(t):
     '''
     S : WHILE E LOOP S END LOOP SEMICOLON
       | WHILE E LOOP A END LOOP SEMICOLON 
-      | FOR V IN RANGE LOOP S END LOOP SEMICOLON 
-      | FOR V IN RANGE LOOP A END LOOP SEMICOLON 
+      | FOR V IN R LOOP S END LOOP SEMICOLON 
+      | FOR V IN R LOOP A END LOOP SEMICOLON 
       | IF E THEN S ELSIF S END IF SEMICOLON 
       | IF E THEN S ELSE S END IF SEMICOLON 
       | IF E THEN S END IF SEMICOLON
@@ -361,8 +367,7 @@ def p_S(t):
       | IF E THEN A ELSE A END IF SEMICOLON
     '''
     call_loop(t)
-
-    return t, True
+    t[0] = t[1]
 
 # Assignation
 def p_A(t):
@@ -458,26 +463,26 @@ def p_R(t):
 
     '''
     R : BRAOPEN INT SUSPENSIVE INT BRACLOSE 
-          | BRAOPEN INT SUSPENSIVE INT COMMA INT SUSPENSIVE INT BRACLOSE
-          | BRAOPEN INT SUSPENSIVE INT COMMA INT SUSPENSIVE INT COMMA INT SUSPENSIVE INT BRACLOSE
+      | BRAOPEN INT SUSPENSIVE INT COMMA INT SUSPENSIVE INT BRACLOSE
+      | BRAOPEN INT SUSPENSIVE INT COMMA INT SUSPENSIVE INT COMMA INT SUSPENSIVE INT BRACLOSE
     '''
 
     # Regular expression to find all ranges within the token received
-    rangeRegex = '(\(+[0-9]+\.\.\.[0-9]+)+\,*([0-9]+\.\.\.[0-9]+)*\,*([0-9]+\.\.\.[0-9]+\)+)*'
+    isRangeRegex = '(\(+[0-9]+\.\.\.[0-9]+)+\,*([0-9]+\.\.\.[0-9]+)*\,*([0-9]+\.\.\.[0-9]+\)+)*'
 
     # Finding all ranges (maximum 3 per ADA specifications)
-    tokenizedRanges = np.array(re.findall(rangeRegex, t[5]))[0] # This way the ranges get stored in the
+    tokenizedRanges = np.array(re.findall(isRangeRegex, t[5]))[0] # This way the ranges get stored in the
                                                                 # form of [[range1, range2, range3]], 
                                                                 # therefore we only store the first item
                                                                 # so that we can have single dimension 
                                                                 # array with all declared ranges. 
-
+                                                                # A string with the ranges is returned. 
+                                                                # Example: (0...4) or (0...4,0...5) or (0...4,0...2,0...5)
     ranges = [] # Empty ranges list
 
-    for i in enumerate(tokenizedRanges):
-        ranges.append({ 'low': tokenizedRanges[i], 'up': tokenizedRanges[i + 1] })
-
-    t.type = 'RANGE'
+    for r in ranges:
+        for v in r:
+            if v.isnumeric(): ranges.append(v)
 
     return ranges
 
@@ -486,21 +491,21 @@ def p_V(t):
     '''
     V : TYPE ID IS INT SEMICOLON 
       | TYPE ID IS FLOAT SEMICOLON 
-      | TYPE ID IS ARRAY RANGE SEMICOLON
-    '''
+      | TYPE ID IS ARRAY R SEMICOLON
+    '''    
     # Assert variable declaration sytnax is written correctly
     isValid = t_TYPE(t[1]) and t_ID(t[2]) and t_IS(t[3]) and (t_SEMICOLON(t[5]) or t_SEMICOLON(t[6]))
     # Determine if variable declared zoomis array with range
-    isArray = t_ARRAY(t[4]) and t_RANGE(t[5])
+    isArray = t_ARRAY(t[4]) #and t_RANGE(t[5])
     
     if not isArray:
         names[t[2]] = t[4]
     else:
-        ranges = p_R(t[5])  # Get Ranges
+        ranges = p_R(t)  # Get Ranges
         names[t[2]] = ranges
-
-    print(names)
+    
     t[0] = t[4]
+    print(names)
 
 # Grammar Error Handling
 def p_error(t):
@@ -511,7 +516,7 @@ import ply.yacc as yacc
 parser = yacc.yacc()
 
 # Reading file with example code
-f = open('./example1.txt', 'r', encoding="utf8")
+f = open('./example2.txt', 'r', encoding="utf8")
 input = f.read()
 print('\n')
 print(input)
