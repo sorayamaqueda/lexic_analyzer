@@ -55,12 +55,26 @@ tokens = [
     'BRACLOSE'
 ] + list(reserved.values())
 
+# Aritmetic Operators
 t_PLUS = r'\+'
 t_MINUS = r'\-'
 t_DIVIDE = r'/'
-t_LTE = r'\<='
-t_GTE = r'\>='
-t_EQUAL = r'\='
+t_LTE = r'<\|='
+t_GTE = r'>\|='
+t_EQUAL = r'='
+t_TIMES = r'\*'
+t_GT = r'>'
+t_LT = r'<'
+t_GTE = r'>\|='
+t_LTE = r'<\|='
+
+# Special Tokens
+t_SEMICOLON = r';'
+t_ASSIGN = r':='
+t_SUSPENSIVE = r'\.\.\.'
+t_COMMA = r','
+t_BRAOPEN = r'\('
+t_BRACLOSE = r'\)'
  
 # Precedence 
 # By default, there's an ambiguety as to the expression syntax, therefore yacc allows
@@ -106,22 +120,6 @@ lexer = lex.lex()
 # Regex definition in functions. This implemenation is useful because
 # it allows us to manipulate the value of the token received.
 
-# Aritmetic Operators
-def t_TIMES(t):
-    r'\*'
-    t.type = 'TIMES'
-    return t
-
-def t_LT(t):
-    r'<'
-    t.type = 'LT'
-    return t
-
-def t_GT(t):
-    r'>'
-    t.type = 'GT'
-    return t
-
 # Integers
 def t_INT(t):
     r'\d+'
@@ -139,34 +137,6 @@ def t_FLOAT(t):
     except ValueError:
         print('Value too large %d', t.value)
         t.value = 0
-    return t
-
-# Special Tokens
-
-# Assign
-def t_ASSIGN(t):
-    r'\:='
-    t.type = ':='
-    return t
-
-def t_SUSPENSIVE(t):
-    r'\...'
-    t.type = 'SUSPENSIVE'
-    return t
-
-def t_COMMA(t):
-    r'\,'
-    t.type = 'COMMA'
-    return t
-
-def t_BRAOPEN(t):
-    r'\('
-    t.type = 'BRAOPEN'
-    return t
-
-def t_BRACLOSE(t):
-    r'\)'
-    t.type = 'BRACLOSE'
     return t
 
 # Syntax Rules
@@ -274,12 +244,6 @@ def t_ID(t):
     r'[a-zA-Z_][a-zA-Z_0-9]*'
     t.type = reserved.get(t.value, 'ID') # Check for reserved words
     print(t[1])
-    return t
-
-# Semicolon
-def t_SEMICOLON(t):
-    r';'
-    t.type = ';'
     return t
 
 # Productions
@@ -518,7 +482,7 @@ import ply.yacc as yacc
 parser = yacc.yacc()
 
 print('Analyzing Code...\n')
-with open(sys.argv[1], 'r') as f:
+with open(sys.argv[1], 'r', encoding='utf8') as f:
     data = f.read()
 while True:
     lexer.input(data)
