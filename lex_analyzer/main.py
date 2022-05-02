@@ -52,7 +52,9 @@ tokens = [
     'SUSPENSIVE',
     'COMMA',
     'BRAOPEN',
-    'BRACLOSE'
+    'BRACLOSE',
+    'NEWLINE',
+    'TAB'
 ] + list(reserved.values())
 
 # Aritmetic Operators
@@ -67,12 +69,15 @@ t_GT = r'>'
 t_LT = r'<'
 
 # Special Tokens
-t_SEMICOLON = r';'
+t_SEMICOLON = r'\;'
 t_ASSIGN = r':='
 t_SUSPENSIVE = r'\.\.\.'
 t_COMMA = r','
 t_BRAOPEN = r'\('
 t_BRACLOSE = r'\)'
+
+# Token to ignore
+t_ignore = r' \t'
  
 # Precedence 
 # By default, there's an ambiguety as to the expression syntax, therefore yacc allows
@@ -89,14 +94,14 @@ names = { }
 # t_ prefix for python's native library to identify a token as a regex
 
 # Tab
-def t_tab(t):
-    r'\t'
+def t_TAB(t):
+    r' \t'
     t.lexer.lineno += t.value.count('\t')
     pass
 
 # New Line
-def t_newLine(t):
-    r'\n'
+def t_NEWLINE(t):
+    r' \n'
     t.lexer.lineno += t.value.count('\n')
     pass
 
@@ -453,7 +458,7 @@ def p_R(t):
 def p_V(t):
     '''
     V : TYPE ID IS INT SEMICOLON 
-      | TYPE ID IS FLOAT SEMICOLON 
+      | TYPE ID IS FLOAT SEMICOLON
       | TYPE ID IS ARRAY R SEMICOLON
     '''    
 
@@ -492,7 +497,7 @@ while True:
     break
 result = parser.parse(data)
 
-print('Analyze complete...')
+print('Analysis complete...')
 
 # Sources:
 # https://programmerclick.com/article/9778279087/#1_Preface_and_Requirements_2

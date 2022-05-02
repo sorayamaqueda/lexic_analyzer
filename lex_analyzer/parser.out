@@ -2,6 +2,8 @@ Created by PLY version 3.11 (http://www.dabeaz.com/ply)
 
 Unused terminals:
 
+    NEWLINE
+    TAB
     USE
 
 Grammar
@@ -86,10 +88,12 @@ LOOP                 : 2 2 3 3 4 4 5 5
 LT                   : 24 25 26
 LTE                  : 44 45 46
 MINUS                : 32 33 34
+NEWLINE              : 
 PLUS                 : 29 30 31
 PROCEDURE            : 19 20
 SEMICOLON            : 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 50 51 52
 SUSPENSIVE           : 47 48 48 49 49 49
+TAB                  : 
 THEN                 : 6 7 8 9 10 11 12 13 14 15
 TIMES                : 38 39 40
 TYPE                 : 50 51 52
