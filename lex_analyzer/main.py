@@ -65,8 +65,6 @@ t_EQUAL = r'='
 t_TIMES = r'\*'
 t_GT = r'>'
 t_LT = r'<'
-t_GTE = r'>\|='
-t_LTE = r'<\|='
 
 # Special Tokens
 t_SEMICOLON = r';'
