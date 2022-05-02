@@ -3,6 +3,7 @@
 
 # Ply tools to create lexic analyzer
 import numpy as np
+import sys
 import re
 
 # Token Definitions
@@ -46,8 +47,8 @@ tokens = [
     'GTE',
     'LT',
     'LTE',
-    'SEMICOLON',
     'EQUAL',
+    'SEMICOLON',
     'SUSPENSIVE',
     'COMMA',
     'BRAOPEN',
@@ -472,15 +473,15 @@ def p_R(t):
 
     # Finding all ranges (maximum 3 per ADA specifications)
     tokenizedRanges = np.array(re.findall(isRangeRegex, t[5]))[0] # This way the ranges get stored in the
-                                                                # form of [[range1, range2, range3]], 
-                                                                # therefore we only store the first item
-                                                                # so that we can have single dimension 
-                                                                # array with all declared ranges. 
-                                                                # A string with the ranges is returned. 
-                                                                # Example: (0...4) or (0...4,0...5) or (0...4,0...2,0...5)
+                                                                  # form of [[range1, range2, range3]], 
+                                                                  # therefore we only store the first item
+                                                                  # so that we can have single dimension 
+                                                                  # array with all declared ranges. 
+                                                                  # A string with the ranges is returned. 
+                                                                  # Example: (0...4) or (0...4,0...5) or (0...4,0...2,0...5)
     ranges = [] # Empty ranges list
 
-    for r in ranges:
+    for r in tokenizedRanges:
         for v in r:
             if v.isnumeric(): ranges.append(v)
 
@@ -493,6 +494,7 @@ def p_V(t):
       | TYPE ID IS FLOAT SEMICOLON 
       | TYPE ID IS ARRAY R SEMICOLON
     '''    
+
     # Assert variable declaration sytnax is written correctly
     isValid = t_TYPE(t[1]) and t_ID(t[2]) and t_IS(t[3]) and (t_SEMICOLON(t[5]) or t_SEMICOLON(t[6]))
     # Determine if variable declared zoomis array with range
@@ -515,13 +517,20 @@ def p_error(t):
 import ply.yacc as yacc
 parser = yacc.yacc()
 
-# Reading file with example code
-f = open('./example2.txt', 'r', encoding="utf8")
-input = f.read()
-print('\n')
-print(input)
-print('\n')
-parser.parse(input)
+print('Analyzing Code...\n')
+with open(sys.argv[1], 'r') as f:
+    data = f.read()
+while True:
+    lexer.input(data)
+    while True:
+        token = lexer.token()
+        if not token:
+            break   # No more input
+        print(token.type, token.value, token.lineno)
+    break
+result = parser.parse(data)
+
+print('Analyze complete...')
 
 # Sources:
 # https://programmerclick.com/article/9778279087/#1_Preface_and_Requirements_2
