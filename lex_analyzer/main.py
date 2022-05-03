@@ -28,7 +28,7 @@ reserved = {
     'is' : 'IS',
     'loop' : 'LOOP',
     'procedure' : 'PROCEDURE',
-    #'range' : 'RANGE',
+    'range' : 'RANGE',
     'type' : 'TYPE',
     'use' : 'USE',
     'with' : 'WITH',
@@ -79,7 +79,7 @@ t_BRAOPEN = r'\('
 t_BRACLOSE = r'\)'
 
 # Token to ignore
-t_ignore = r' \t'
+t_ignore = r'   \t'
  
 # Precedence 
 # By default, there's an ambiguety as to the expression syntax, therefore yacc allows
@@ -91,6 +91,66 @@ precedence = (
 
 # Dictionary for Variable Names
 names = { }
+
+# Token Functions
+# Regex definition in functions. This implemenation is useful because
+# it allows us to manipulate the value of the token received.
+
+# Variable Id
+def t_ID(t):
+    r'[a-zA-Z_][a-zA-Z_0-9_]*'
+    t.type = reserved.get(t.value, 'ID') # Check for reserved words
+    print('ID: ' + t.value)
+    return t
+
+# type
+def t_TYPE(t):
+    r'type'
+    t.type = reserved.get(t.value, 'TYPE')
+    print('Variable type being identified...')
+    return t
+
+# is
+def t_IS(t):
+    r'is'
+    t.type = reserved.get(t.value, 'IS')
+    print('is of type...')
+    return t
+
+# Integers
+def t_INT(t):
+    r'\d+'
+    try:
+        t.value = int(t.value)
+    except ValueError:
+        print('Value too large %d', t.value)
+    
+    print('Integer of value: ' + str(t.value))
+    return t
+
+# Floats
+def t_FLOAT(t):
+    r'\d+\.\d+'
+    try:
+        t.value = float(t.value)
+    except ValueError:
+        print('Value too large %d', t.value)
+        t.value = 0
+    
+    print('Float of value: ' + str(t.value))
+    return t
+
+# use
+def t_USE(t):
+    r'use'
+    t.type = reserved.get(t.value, 'USE')
+    return t
+
+# procedure
+def t_PROCEDURE(t):
+    r'procedure'
+    t.type = reserved.get(t.value, 'PROCEDURE')
+    return t
 
 # Characters to ignore
 # t_ prefix for python's native library to identify a token as a regex
@@ -114,54 +174,12 @@ def t_comment(t):
 
 # Error Handling
 def t_error(t):
-    print('Illegal character %s' % t.value[0])
+    print('Illegal character %s' % t.value[0] + t.type)
     t.lexer.skip(1)
 
 # Building the lexer
 import ply.lex as lex
 lexer = lex.lex()
-
-# Token Functions
-# Regex definition in functions. This implemenation is useful because
-# it allows us to manipulate the value of the token received.
-
-# type
-def t_TYPE(t):
-    r'type'
-    t.type = reserved.get(t.value, 'TYPE')
-    return t
-
-# Variable Id
-def t_ID(t):
-    r'[a-zA-Z_][a-zA-Z_0-9]*'
-    t.type = reserved.get(t.value, 'ID') # Check for reserved words
-    print(t[1])
-    return t
-
-# is
-def t_IS(t):
-    r'is'
-    t.type = reserved.get(t.value, 'IS')
-    return t
-
-# Integers
-def t_INT(t):
-    r'\d+'
-    try:
-        t.value = int(t.value)
-    except ValueError:
-        print('Value too large %d', t.value)
-    return t
-
-# Floats
-def t_FLOAT(t):
-    r'\d+\.\d+'
-    try:
-        t.value = float(t.value)
-    except ValueError:
-        print('Value too large %d', t.value)
-        t.value = 0
-    return t
 
 # Syntax Rules
 
@@ -219,11 +237,6 @@ def t_LOOP(t):
     t.type = reserved.get(t.value, 'LOOP')
     return t
 
-# procedure
-def t_PROCEDURE(t):
-    r'procedure'
-    t.type = reserved.get(t.value, 'PROCEDURE')
-    return t
 
 # range
 # def t_RANGE(t):
@@ -232,12 +245,6 @@ def t_PROCEDURE(t):
 #                                                 # Example: (0...4) or (0...4,0...5) or (0...4,0...2,0...5)
 #     t.type = 'RANGE'
 #     return t, ranges
-
-# use
-def t_USE(t):
-    r'use'
-    t.type = reserved.get(t.value, 'USE')
-    return t
 
 # with
 def t_WITH(t):
@@ -262,7 +269,7 @@ def t_THEN(t):
 # p = sequence with values of each grammar symbols
 
 # Program
-def p_PROGRAM(t):
+def p_PROGRAM(p):
     '''
     P : WITH P
     '''
@@ -271,6 +278,7 @@ def p_PROGRAM(t):
     #   | WITH C P
     #   | WITH P
     # '''
+    p[0] = p[2]
     print("Interpret Program")
 
 # Statements
@@ -296,7 +304,7 @@ def for_loop(t):
     isValid = t_FOR(t[1]) and t_IN(t[3]) and t_LOOP(t[5]) and t_END(t[7])
 
     if isValid:
-        isValidRange = t_RANGE(t[4]) # Assert that range is properly declared
+        isValidRange = p_R(t[4]) # Assert that range is properly declared
         if isValidRange:
             loopRange = p_R(t[4]) # Get loop range
             try:
@@ -304,8 +312,8 @@ def for_loop(t):
             except:
                 loopBody = p_A(t[6])
             
-            for i in loopRange:
-                eval(loopBody)
+        for i in loopRange:
+            eval(loopBody)
      
 def if_loop(t):
     expr = p_E(t[1])
@@ -345,14 +353,16 @@ def p_S(p):
     call_loop(p)
 
 # Assignation
-def p_A(t):
+def p_A(p):
     '''
     A : V ASSIGN E SEMICOLON 
       | V ASSIGN FLOAT SEMICOLON 
       | V ASSIGN INT SEMICOLON
     '''
 
-    t[0] = operator_type(t[3])
+    p[0] = operator_type(p[3])
+    print(p[0])
+    names[p[0]] = [3]
 
 # Procedures
 def p_P(t):
@@ -365,6 +375,7 @@ def p_P(t):
     except:
         t[0] = p_S(t[4])
 
+    print('Procedure: ' + t[0])
     return t
 
 # Expressions
@@ -385,7 +396,7 @@ def evaluator(t, op1, op2):
     elif t == '>' : return op1 > op2
     elif t == '=' : return op1 == op2
 
-def p_E(t):
+def p_E(p):
     '''
     E : V GT FLOAT 
     | V GT INT 
@@ -415,11 +426,12 @@ def p_E(t):
     | V LTE FLOAT
     '''
 
-    op1 = operator_type(t[1]) # Define if it's
-    op2 = operator_type(t[3]) # integer or float data type
-    expr = evaluator(t[2], op1, op2)
+    op1 = operator_type(p[1]) # Define if it's
+    op2 = operator_type(p[3]) # integer or float data type
+    expr = evaluator(p[2], op1, op2)
     
-    t[0] = expr
+    p[0] = expr
+    names[p[0]] = expr
 
 # Variables
 def data_type(t):
@@ -461,26 +473,19 @@ def p_R(p):
 
     return ranges
 
-# Variables
 def p_V(p):
     '''
     V : TYPE ID IS INT SEMICOLON 
       | TYPE ID IS FLOAT SEMICOLON
       | TYPE ID IS ARRAY R SEMICOLON
+      | TYPE ID SEMICOLON
     '''    
 
-    # Assert variable declaration sytnax is written correctly
-    isValid = t_TYPE(p[1]) and t_ID(p[2]) and t_IS(p[3]) and (t_SEMICOLON(p[5]) or t_SEMICOLON(p[6]))
-    # Determine if variable declared zoomis array with range
-    isArray = t_ARRAY(p[4]) #and t_RANGE(t[5])
-    
-    # if not isArray:
-    #     names[p[2]] = p[4]
-    # else:
-    #     ranges = p_R(p)  # Get Ranges
-    #     names[p[2]] = ranges
+    if p[4] in names():
+        print('A variable cannot be declared twice')
     
     p[0] = p[4]
+    name[p[0]] = p[4]
     print(names)
 
 # Grammar Error Handling

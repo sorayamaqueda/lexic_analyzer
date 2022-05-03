@@ -1,1 +1,7 @@
-type var is int;
+type var is integer;
+var := 10;
+
+procedure mux is
+begin
+var := var + 2;
+end mux;
