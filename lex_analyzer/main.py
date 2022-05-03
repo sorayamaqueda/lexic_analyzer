@@ -38,8 +38,8 @@ reserved = {
 
 tokens = [
     'ID', 
-    'FLOAT',
-    'INT',
+    #'FLOAT',
+    #'INT',
     'ASSIGN',
     'PLUS',
     'MINUS',
@@ -100,7 +100,9 @@ names = { }
 def t_ID(t):
     r'[a-zA-Z_][a-zA-Z_0-9_]*'
     t.type = reserved.get(t.value, 'ID') # Check for reserved words
-    print('ID: ' + t.value)
+    print('\nID: ' + t.value)
+    
+    #if not (t.value in reserved.values()) or  not (t.value in tokens): names[t.value] = ''
     return t
 
 # type
@@ -114,7 +116,7 @@ def t_TYPE(t):
 def t_IS(t):
     r'is'
     t.type = reserved.get(t.value, 'IS')
-    print('is of type...')
+    print('\nis of type...')
     return t
 
 # Integers
@@ -125,7 +127,7 @@ def t_INT(t):
     except ValueError:
         print('Value too large %d', t.value)
     
-    print('Integer of value: ' + str(t.value))
+    print('\nInteger of value: ' + str(t.value))
     return t
 
 # Floats
@@ -137,7 +139,7 @@ def t_FLOAT(t):
         print('Value too large %d', t.value)
         t.value = 0
     
-    print('Float of value: ' + str(t.value))
+    print('\nFloat of value: ' + str(t.value))
     return t
 
 # use
@@ -362,7 +364,8 @@ def p_A(p):
 
     p[0] = operator_type(p[3])
     print(p[0])
-    names[p[0]] = [3]
+    index = names.keys().index(p[1])
+    names[index] = p[3]
 
 # Procedures
 def p_P(t):
@@ -429,9 +432,20 @@ def p_E(p):
     op1 = operator_type(p[1]) # Define if it's
     op2 = operator_type(p[3]) # integer or float data type
     expr = evaluator(p[2], op1, op2)
-    
+    print('Expression: ' + str(expr))
+
     p[0] = expr
-    names[p[0]] = expr
+
+    if p[2] == '+' : p[0] = p[1] + p[3]
+    elif p[2] == '-' : p[0] = p[1] - p[3]
+    elif p[2] == '/' : p[0] = p[1] / p[3]
+    elif p[2][2] == '*' : p[0] = p[1] * p[3]
+    elif p[2] == '<' : p[0] = p[1] < p[3]
+    elif p[2] == '>' : p[0] = p[1] > p[3]
+    elif p[2] == '=' : p[0] = p[1] == p[3]
+
+    #names[p[0]] = expr
+    names[p[1]] = p[0]
 
 # Variables
 def data_type(t):
@@ -482,11 +496,12 @@ def p_V(p):
     '''    
 
     if p[4] in names():
-        print('A variable cannot be declared twice')
+        print('\nA variable cannot be declared twice')
     
+    print('Variable declared: ' + str(p))
+
     p[0] = p[4]
     name[p[0]] = p[4]
-    print(names)
 
 # Grammar Error Handling
 def p_error(t):
@@ -505,7 +520,11 @@ while True:
         token = lexer.token()
         if not token:
             break   # No more input
-        print(token.type, token.value, token.lineno)
+        
+        if token.value in reserved.values(): print('Reserved word')
+
+        print('\nToken found')
+        print(token.type, token.value, token.lineno, '\n')
     break
 result = parser.parse(data)
 print('Symbol Table: \n')
