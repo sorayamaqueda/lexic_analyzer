@@ -2,6 +2,8 @@
 # Lenguajes y Traductores - Analizador de Léxico
 
 # Ply tools to create lexic analyzer
+from operator import rshift
+from unicodedata import name
 import numpy as np
 import sys
 import re
@@ -123,6 +125,25 @@ lexer = lex.lex()
 # Regex definition in functions. This implemenation is useful because
 # it allows us to manipulate the value of the token received.
 
+# type
+def t_TYPE(t):
+    r'type'
+    t.type = reserved.get(t.value, 'TYPE')
+    return t
+
+# Variable Id
+def t_ID(t):
+    r'[a-zA-Z_][a-zA-Z_0-9]*'
+    t.type = reserved.get(t.value, 'ID') # Check for reserved words
+    print(t[1])
+    return t
+
+# is
+def t_IS(t):
+    r'is'
+    t.type = reserved.get(t.value, 'IS')
+    return t
+
 # Integers
 def t_INT(t):
     r'\d+'
@@ -153,61 +174,55 @@ def t_ARRAY(t):
 # begin
 def t_BEGIN(t):
     r'begin'
-    t.type = 'BEGIN'
+    t.type = reserved.get(t.value, 'BEGIN')
     return t
 
 # else
 def t_ELSE(t):
     r'else'
-    t.type = 'ELSE'
+    t.type = reserved.get(t.value, 'ELSE')
     return t
 
 # elsif
 def t_ELSIF(t):
     r'elsif'
-    t.type = 'ELSIF'
+    t.type = reserved.get(t.value, 'ELSIF')
     return t
 
 # end
 def t_END(t):
     r'end'
-    t.type = 'END'
+    t.type = reserved.get(t.value, 'END')
     return t
 
 # for
 def t_FOR(t):
     r'for'
-    t.type = 'FOR'
+    t.type = reserved.get(t.value, 'FOR')
     return t
 
 # if
 def t_IF(t):
     r'if'
-    t.type = 'IF'
+    t.type = reserved.get(t.value, 'IF')
     return t
 
 # in
 def t_IN(t):
     r'in'
-    t.type = 'IN'
-    return t
-
-# is
-def t_IS(t):
-    r'is'
-    t.type = 'IS'
+    t.type = reserved.get(t.value, 'IN')
     return t
 
 # loop
 def t_LOOP(t):
     r'loop'
-    t.type = 'LOOP'
+    t.type = reserved.get(t.value, 'LOOP')
     return t
 
 # procedure
 def t_PROCEDURE(t):
     r'procedure'
-    t.type = 'PROCEDURE'
+    t.type = reserved.get(t.value, 'PROCEDURE')
     return t
 
 # range
@@ -218,35 +233,28 @@ def t_PROCEDURE(t):
 #     t.type = 'RANGE'
 #     return t, ranges
 
-# type
-def t_TYPE(t):
-    r'type'
-    t.type = 'TYPE'
-    return t
-
 # use
 def t_USE(t):
     r'use'
-    t.type = 'USE'
+    t.type = reserved.get(t.value, 'USE')
     return t
 
 # with
 def t_WITH(t):
     r'with'
-    t.type = 'WITH'
+    t.type = reserved.get(t.value, 'WITH')
     return t
 
 # while
 def t_WHILE(t):
     r'while'
-    t.type = 'WHILE'
+    t.type = reserved.get(t.value, 'WHILE')
     return t
 
-# Variable Id
-def t_ID(t):
-    r'[a-zA-Z_][a-zA-Z_0-9]*'
-    t.type = reserved.get(t.value, 'ID') # Check for reserved words
-    print(t[1])
+# then
+def t_THEN(t):
+    r'then'
+    t.type = reserved.get(t.value, 'THEN')
     return t
 
 # Productions
@@ -317,7 +325,7 @@ def call_loop(t):
 
     t[0] = t[1]
 
-def p_S(t):
+def p_S(p):
     '''
     S : WHILE E LOOP S END LOOP SEMICOLON
       | WHILE E LOOP A END LOOP SEMICOLON 
@@ -334,8 +342,7 @@ def p_S(t):
       | IF E THEN A ELSIF A END IF SEMICOLON
       | IF E THEN A ELSE A END IF SEMICOLON
     '''
-    call_loop(t)
-    #t[0] = t[1]
+    call_loop(p)
 
 # Assignation
 def p_A(t):
@@ -427,7 +434,7 @@ def range_boundaries(values):
         matrix.append(np.asarray(v))
 
 # Range
-def p_R(t):
+def p_R(p):
 
     '''
     R : BRAOPEN INT SUSPENSIVE INT BRACLOSE 
@@ -439,7 +446,7 @@ def p_R(t):
     isRangeRegex = '(\(+[0-9]+\.\.\.[0-9]+)+\,*([0-9]+\.\.\.[0-9]+)*\,*([0-9]+\.\.\.[0-9]+\)+)*'
 
     # Finding all ranges (maximum 3 per ADA specifications)
-    tokenizedRanges = np.array(re.findall(isRangeRegex, t[5]))[0] # This way the ranges get stored in the
+    tokenizedRanges = np.array(re.findall(isRangeRegex, p[5]))[0] # This way the ranges get stored in the
                                                                   # form of [[range1, range2, range3]], 
                                                                   # therefore we only store the first item
                                                                   # so that we can have single dimension 
@@ -455,7 +462,7 @@ def p_R(t):
     return ranges
 
 # Variables
-def p_V(t):
+def p_V(p):
     '''
     V : TYPE ID IS INT SEMICOLON 
       | TYPE ID IS FLOAT SEMICOLON
@@ -463,17 +470,17 @@ def p_V(t):
     '''    
 
     # Assert variable declaration sytnax is written correctly
-    isValid = t_TYPE(t[1]) and t_ID(t[2]) and t_IS(t[3]) and (t_SEMICOLON(t[5]) or t_SEMICOLON(t[6]))
+    isValid = t_TYPE(p[1]) and t_ID(p[2]) and t_IS(p[3]) and (t_SEMICOLON(p[5]) or t_SEMICOLON(p[6]))
     # Determine if variable declared zoomis array with range
-    isArray = t_ARRAY(t[4]) #and t_RANGE(t[5])
+    isArray = t_ARRAY(p[4]) #and t_RANGE(t[5])
     
-    if not isArray:
-        names[t[2]] = t[4]
-    else:
-        ranges = p_R(t)  # Get Ranges
-        names[t[2]] = ranges
+    # if not isArray:
+    #     names[p[2]] = p[4]
+    # else:
+    #     ranges = p_R(p)  # Get Ranges
+    #     names[p[2]] = ranges
     
-    t[0] = t[4]
+    p[0] = p[4]
     print(names)
 
 # Grammar Error Handling
@@ -485,7 +492,7 @@ import ply.yacc as yacc
 parser = yacc.yacc()
 
 print('Analyzing Code...\n')
-with open(sys.argv[1], 'r', encoding='utf8') as f:
+with open(sys.argv[1], 'r', encoding='utf-8') as f:
     data = f.read()
 while True:
     lexer.input(data)
@@ -496,7 +503,8 @@ while True:
         print(token.type, token.value, token.lineno)
     break
 result = parser.parse(data)
-
+print('Symbol Table: \n')
+print(names)
 print('Analysis complete...')
 
 # Sources:
