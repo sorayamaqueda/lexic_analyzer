@@ -37,8 +37,8 @@ reserved = {
 
 tokens = [
     'ID', 
-    #'FLOAT',
-    #'INT',
+    'FLOATNUM',
+    'NUMBER',
     'ASSIGN',
     'PLUS',
     'MINUS',
@@ -91,6 +91,9 @@ precedence = (
 # Dictionary for Variable Names
 names = { }
 
+# Error Count
+err = []
+
 # Token Functions
 # Regex definition in functions. This implemenation is useful because
 # it allows us to manipulate the value of the token received.
@@ -99,34 +102,34 @@ names = { }
 def t_ID(t):
     r'[a-zA-Z_][a-zA-Z_0-9_]*'
     t.type = reserved.get(t.value, 'ID') # Check for reserved words
-    print(Fore.GREEN + '\nID: ' + t.value)
+    print(Fore.LIGHTGREEN_EX + '\nID: ' + t.value)
     
-    #if not (t.value in reserved.values()) or  not (t.value in tokens): names[t.value] = ''
     return t
 
 # type
 def t_TYPE(t):
     r'type'
     t.type = reserved.get(t.value, 'TYPE')
-    print(Fore.GREEN + 'Variable type being identified...')
+    print(Fore.LIGHTGREEN_EX + 'Variable type being identified...')
     return t
 
 # is
 def t_IS(t):
     r'is'
     t.type = reserved.get(t.value, 'IS')
-    print(Fore.GREEN + '\nis of type...')
+    print(Fore.LIGHTGREEN_EX + '\nis of type...')
     return t
 
 # Integers
-def t_INT(t):
+def t_NUMBER(t):
     r'\d+'
     try:
         t.value = int(t.value)
     except ValueError:
         print(Fore.RED + 'Value too large %d', t.value)
+        err.append({'Value Error': 'Float value too large at line ' + str(t.lineno)})
     
-    print(Fore.GREEN + '\nInteger of value: ' + str(t.value))
+    print(Fore.LIGHTGREEN_EX + '\nInteger of value: ' + str(t.value))
     return t
 
 # Floats
@@ -136,9 +139,10 @@ def t_FLOAT(t):
         t.value = float(t.value)
     except ValueError:
         print(Fore.RED + 'Value too large %d', t.value)
+        err.append({'Value Error' : 'Integer Value too large at line ' + str(t.lineno)})
         t.value = 0
     
-    print(Fore.GREEN + '\nFloat of value: ' + str(t.value))
+    print(Fore.LIGHTGREEN_EX + '\nFloat of value: ' + str(t.value))
     return t
 
 # use
@@ -180,6 +184,7 @@ def t_comment(t):
 # Error Handling
 def t_error(t):
     print(Fore.RED + 'Illegal character %s' % t.value[0] + t.type)
+    err.append({'Token Error': 'Illegal char at line ' + t.lineno})
     t.lexer.skip(1)
 
 # Building the lexer
@@ -340,22 +345,40 @@ def call_loop(t):
 
     t[0] = t[1]
 
+def p_IFSTATEMENT(p):
+    '''
+    IFSTATEMENT : IF E THEN S ELSIF S END IF SEMICOLON NEWLINE
+                | IF E THEN S ELSE S END IF SEMICOLON NEWLINE
+                | IF E THEN S END IF SEMICOLON NEWLINE
+                | IF E THEN S ELSIF A END IF SEMICOLON NEWLINE
+                | IF E THEN S ELSE A END IF SEMICOLON NEWLINE
+                | IF E THEN A END IF SEMICOLON NEWLINE
+                | IF E THEN A ELSIF S END IF SEMICOLON NEWLINE
+                | IF E THEN A ELSE S END IF SEMICOLON NEWLINE
+                | IF E THEN A ELSIF A END IF SEMICOLON NEWLINE
+                | IF E THEN A ELSE A END IF SEMICOLON NEWLINE
+    '''
+    print(Fore.BLUE + '\nIf loop declared...')
+
+def p_WHILESTATEMENT(p):
+    '''
+    WHILESTATEMENT : WHILE E LOOP S END LOOP SEMICOLON NEWLINE
+                   | WHILE E LOOP A END LOOP SEMICOLON NEWLINE
+    '''
+    print(Fore.BLUE + '\nWhile loop declared...')
+
+def p_FORSTATEMENT(p):
+    '''
+    FORSTATEMENT :  FOR V IN R LOOP S END LOOP SEMICOLON NEWLINE
+                 | FOR V IN R LOOP A END LOOP SEMICOLON NEWLINE
+    '''
+    print(Fore.BLUE + '\nFor loop declared')
+
 def p_S(p):
     '''
-    S : WHILE E LOOP S END LOOP SEMICOLON
-      | WHILE E LOOP A END LOOP SEMICOLON 
-      | FOR V IN R LOOP S END LOOP SEMICOLON 
-      | FOR V IN R LOOP A END LOOP SEMICOLON 
-      | IF E THEN S ELSIF S END IF SEMICOLON 
-      | IF E THEN S ELSE S END IF SEMICOLON 
-      | IF E THEN S END IF SEMICOLON
-      | IF E THEN S ELSIF A END IF SEMICOLON 
-      | IF E THEN S ELSE A END IF SEMICOLON 
-      | IF E THEN A END IF SEMICOLON 
-      | IF E THEN A ELSIF S END IF SEMICOLON 
-      | IF E THEN A ELSE S END IF SEMICOLON 
-      | IF E THEN A ELSIF A END IF SEMICOLON
-      | IF E THEN A ELSE A END IF SEMICOLON
+    S : WHILESTATEMENT
+      | FORSTATEMENT
+      | IFSTATEMENT
     '''
     call_loop(p)
     print(Fore.BLUE + '\nStatement: ' + p[1])
@@ -363,9 +386,9 @@ def p_S(p):
 # Assignation
 def p_A(p):
     '''
-    A : V ASSIGN E SEMICOLON 
-      | V ASSIGN FLOAT SEMICOLON 
-      | V ASSIGN INT SEMICOLON
+    A : ID ASSIGN E SEMICOLON NEWLINE
+      | ID ASSIGN FLOATNUM SEMICOLON NEWLINE
+      | ID ASSIGN NUMBER SEMICOLON NEWLINE
     '''
 
     p[0] = operator_type(p[3])
@@ -376,14 +399,15 @@ def p_A(p):
 # Procedures
 def p_P(p):
     '''
-    P : PROCEDURE ID IS V END ID SEMICOLON 
-      | PROCEDURE ID IS BEGIN S END ID
+    P : PROCEDURE ID IS V END ID SEMICOLON NEWLINE
+      | PROCEDURE ID IS BEGIN S END ID SEMICOLON NEWLINE
     '''
-    try:
-        p[0] = p_V(p[4])
-    except:
-        p[0] = p_S(p[4])
+    # try:
+    #     p[0] = p_V(p[4])
+    # except:
+    #     p[0] = p_S(p[4])
 
+    p[0] = p[4]
     print(Fore.BLUE + 'Procedure: ' + p[2] + ', declared...' + p[0])
     return p
 
@@ -407,32 +431,32 @@ def evaluator(t, op1, op2):
 
 def p_E(p):
     '''
-    E : V GT FLOAT 
-    | V GT INT 
+    E : V GT FLOATNUM 
+    | V GT NUMBER 
     | V GT V
-    | V LT FLOAT 
-    | V LT INT 
+    | V LT FLOATNUM 
+    | V LT NUMBER 
     | V LT V
-    | V EQUAL FLOAT 
-    | V EQUAL INT 
-    | V PLUS FLOAT 
-    | V PLUS INT 
+    | V EQUAL FLOATNUM 
+    | V EQUAL NUMBER 
+    | V PLUS FLOATNUM 
+    | V PLUS NUMBER 
     | V PLUS V
-    | V MINUS FLOAT 
-    | V MINUS INT 
+    | V MINUS FLOATNUM 
+    | V MINUS NUMBER 
     | V MINUS V
-    | V DIVIDE FLOAT 
-    | V DIVIDE INT 
+    | V DIVIDE FLOATNUM 
+    | V DIVIDE NUMBER 
     | V DIVIDE V
-    | V TIMES FLOAT 
-    | V TIMES INT 
+    | V TIMES FLOATNUM 
+    | V TIMES NUMBER 
     | V TIMES V
     | V GTE V
-    | V GTE INT
-    | V GTE FLOAT
+    | V GTE NUMBER
+    | V GTE FLOATNUM
     | V LTE V
-    | V LTE INT
-    | V LTE FLOAT
+    | V LTE NUMBER
+    | V LTE FLOATNUM
     '''
 
     op1 = operator_type(p[1]) # Define if it's
@@ -441,15 +465,6 @@ def p_E(p):
     print(Fore.BLUE + 'Expression: ' + str(expr))
 
     p[0] = expr
-
-    if p[2] == '+' : p[0] = p[1] + p[3]
-    elif p[2] == '-' : p[0] = p[1] - p[3]
-    elif p[2] == '/' : p[0] = p[1] / p[3]
-    elif p[2] == '*' : p[0] = p[1] * p[3]
-    elif p[2] == '<' : p[0] = p[1] < p[3]
-    elif p[2] == '>' : p[0] = p[1] > p[3]
-    elif p[2] == '=' : p[0] = p[1] == p[3]
-
     names[p[0]] = expr
 
 # Variables
@@ -504,15 +519,15 @@ def p_V(p):
 
     if p[4] in names():
         print('\nA variable cannot be declared twice')
+    else:
+        names[p[2]] = p[4]
     
     print(Fore.BLUE + 'Variable declared: ' + str(p))
-
-    p[0] = p[4]
-    names[p[0]] = p[4]
 
 # Grammar Error Handling
 def p_error(t):
     print(Fore.RED + 'Syntax Error in %s' % t.value)
+    err.append({'Syntax Error': 'Syntax Error at line ' + str(t.lineno)})
 
 # Building the parser
 import ply.yacc as yacc
@@ -530,13 +545,17 @@ while True:
         
         if token.value in reserved.values(): print(Fore.RESET + 'Reserved word')
 
-        print(Fore.GREEN + '\nToken found')
+        print(Fore.LIGHTGREEN_EX + '\nToken found')
         print(token.type, token.value, token.lineno, '\n')
     break
 result = parser.parse(data)
-print(Fore.YELLOW + 'Symbol Table: \n')
+print(Fore.LIGHTYELLOW_EX + '\nSymbol Table:')
 print(names)
-print(Fore.MAGENTA + 'Analysis complete...')
+print(Fore.MAGENTA + '\nAnalysis complete...\n')
+print(Fore.LIGHTRED_EX + '\nErrors:')
+for e in err:
+    for errorKey, errorValue in e.items():
+        print(Fore.LIGHTRED_EX + errorKey + ': ' + errorValue)
 
 # Sources:
 # https://programmerclick.com/article/9778279087/#1_Preface_and_Requirements_2

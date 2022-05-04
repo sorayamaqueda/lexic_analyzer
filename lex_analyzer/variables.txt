@@ -1,10 +1,18 @@
-TYPE var IS INTEGER ;
+type var is integer ;
 var := 10 + 2 ;
 
-PROCEDURE mux IS
-BEGIN
+procedure mux is
+begin
 var := var + 2 ;
-END mux;
+end mux;
 
-TYPE varA IS DIGITS ;
+type varA is digits ;
 varA := 12.5 ;
+
+for j in var loop
+    if 1 > 0 then
+        varA := 1;
+    else
+        varA := 0;
+    end if;
+end loop;
