@@ -2,8 +2,7 @@
 # Lenguajes y Traductores - Analizador de Léxico
 
 # Ply tools to create lexic analyzer
-from operator import rshift
-from unicodedata import name
+from colorama import Fore
 import numpy as np
 import sys
 import re
@@ -100,7 +99,7 @@ names = { }
 def t_ID(t):
     r'[a-zA-Z_][a-zA-Z_0-9_]*'
     t.type = reserved.get(t.value, 'ID') # Check for reserved words
-    print('\nID: ' + t.value)
+    print(Fore.GREEN + '\nID: ' + t.value)
     
     #if not (t.value in reserved.values()) or  not (t.value in tokens): names[t.value] = ''
     return t
@@ -109,14 +108,14 @@ def t_ID(t):
 def t_TYPE(t):
     r'type'
     t.type = reserved.get(t.value, 'TYPE')
-    print('Variable type being identified...')
+    print(Fore.GREEN + 'Variable type being identified...')
     return t
 
 # is
 def t_IS(t):
     r'is'
     t.type = reserved.get(t.value, 'IS')
-    print('\nis of type...')
+    print(Fore.GREEN + '\nis of type...')
     return t
 
 # Integers
@@ -125,9 +124,9 @@ def t_INT(t):
     try:
         t.value = int(t.value)
     except ValueError:
-        print('Value too large %d', t.value)
+        print(Fore.RED + 'Value too large %d', t.value)
     
-    print('\nInteger of value: ' + str(t.value))
+    print(Fore.GREEN + '\nInteger of value: ' + str(t.value))
     return t
 
 # Floats
@@ -136,22 +135,24 @@ def t_FLOAT(t):
     try:
         t.value = float(t.value)
     except ValueError:
-        print('Value too large %d', t.value)
+        print(Fore.RED + 'Value too large %d', t.value)
         t.value = 0
     
-    print('\nFloat of value: ' + str(t.value))
+    print(Fore.GREEN + '\nFloat of value: ' + str(t.value))
     return t
 
 # use
 def t_USE(t):
     r'use'
     t.type = reserved.get(t.value, 'USE')
+    print(Fore.BLUE + '\nNew Context declared...')
     return t
 
 # procedure
 def t_PROCEDURE(t):
     r'procedure'
     t.type = reserved.get(t.value, 'PROCEDURE')
+    print(Fore.BLUE + '\nProcedure delcared...')
     return t
 
 # Characters to ignore
@@ -161,12 +162,14 @@ def t_PROCEDURE(t):
 def t_TAB(t):
     r' \t'
     t.lexer.lineno += t.value.count('\t')
+    print(Fore.BLUE + '\nSkipped tab...')
     pass
 
 # New Line
 def t_NEWLINE(t):
     r' \n'
     t.lexer.lineno += t.value.count('\n')
+    print(Fore.BLUE + '\nSkipped new line...')
     pass
 
 # Comment
@@ -176,7 +179,7 @@ def t_comment(t):
 
 # Error Handling
 def t_error(t):
-    print('Illegal character %s' % t.value[0] + t.type)
+    print(Fore.RED + 'Illegal character %s' % t.value[0] + t.type)
     t.lexer.skip(1)
 
 # Building the lexer
@@ -189,12 +192,14 @@ lexer = lex.lex()
 def t_ARRAY(t):
     r'array'
     t.type = 'ARRAY'
+    print(Fore.BLUE + '\nArray declared...')
     return t
 
 # begin
 def t_BEGIN(t):
     r'begin'
     t.type = reserved.get(t.value, 'BEGIN')
+    print(Fore.BLUE + '\nBegin procedure')
     return t
 
 # else
@@ -353,6 +358,7 @@ def p_S(p):
       | IF E THEN A ELSE A END IF SEMICOLON
     '''
     call_loop(p)
+    print(Fore.BLUE + '\nStatement: ' + p[1])
 
 # Assignation
 def p_A(p):
@@ -368,18 +374,18 @@ def p_A(p):
     names[index] = p[3]
 
 # Procedures
-def p_P(t):
+def p_P(p):
     '''
     P : PROCEDURE ID IS V END ID SEMICOLON 
       | PROCEDURE ID IS BEGIN S END ID
     '''
     try:
-        t[0] = p_V(t[4])
+        p[0] = p_V(p[4])
     except:
-        t[0] = p_S(t[4])
+        p[0] = p_S(p[4])
 
-    print('Procedure: ' + t[0])
-    return t
+    print(Fore.BLUE + 'Procedure: ' + p[2] + ', declared...' + p[0])
+    return p
 
 # Expressions
 def operator_type(t):
@@ -432,20 +438,19 @@ def p_E(p):
     op1 = operator_type(p[1]) # Define if it's
     op2 = operator_type(p[3]) # integer or float data type
     expr = evaluator(p[2], op1, op2)
-    print('Expression: ' + str(expr))
+    print(Fore.BLUE + 'Expression: ' + str(expr))
 
     p[0] = expr
 
     if p[2] == '+' : p[0] = p[1] + p[3]
     elif p[2] == '-' : p[0] = p[1] - p[3]
     elif p[2] == '/' : p[0] = p[1] / p[3]
-    elif p[2][2] == '*' : p[0] = p[1] * p[3]
+    elif p[2] == '*' : p[0] = p[1] * p[3]
     elif p[2] == '<' : p[0] = p[1] < p[3]
     elif p[2] == '>' : p[0] = p[1] > p[3]
     elif p[2] == '=' : p[0] = p[1] == p[3]
 
-    #names[p[0]] = expr
-    names[p[1]] = p[0]
+    names[p[0]] = expr
 
 # Variables
 def data_type(t):
@@ -485,6 +490,8 @@ def p_R(p):
         for v in r:
             if v.isnumeric(): ranges.append(v)
 
+    print(Fore.BLUE + '\nArray ranges: ')
+    print(ranges)
     return ranges
 
 def p_V(p):
@@ -498,20 +505,20 @@ def p_V(p):
     if p[4] in names():
         print('\nA variable cannot be declared twice')
     
-    print('Variable declared: ' + str(p))
+    print(Fore.BLUE + 'Variable declared: ' + str(p))
 
     p[0] = p[4]
-    name[p[0]] = p[4]
+    names[p[0]] = p[4]
 
 # Grammar Error Handling
 def p_error(t):
-    print('Syntax Error in %s' % t.value)
+    print(Fore.RED + 'Syntax Error in %s' % t.value)
 
 # Building the parser
 import ply.yacc as yacc
 parser = yacc.yacc()
 
-print('Analyzing Code...\n')
+print(Fore.MAGENTA + 'Analyzing Code...\n')
 with open(sys.argv[1], 'r', encoding='utf-8') as f:
     data = f.read()
 while True:
@@ -523,13 +530,13 @@ while True:
         
         if token.value in reserved.values(): print('Reserved word')
 
-        print('\nToken found')
+        print(Fore.GREEN + '\nToken found')
         print(token.type, token.value, token.lineno, '\n')
     break
 result = parser.parse(data)
-print('Symbol Table: \n')
+print(Fore.YELLOW + 'Symbol Table: \n')
 print(names)
-print('Analysis complete...')
+print(Fore.MAGENTA + 'Analysis complete...')
 
 # Sources:
 # https://programmerclick.com/article/9778279087/#1_Preface_and_Requirements_2

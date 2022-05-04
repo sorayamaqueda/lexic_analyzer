@@ -1,7 +1,7 @@
-TYPE var IS INTEGER;
-var := 10 + 2;
+TYPE var IS INTEGER ;
+var := 10 + 2 ;
 
 PROCEDURE mux IS
 BEGIN
-var := var + 2;
+var := var + 2 ;
 END mux;
