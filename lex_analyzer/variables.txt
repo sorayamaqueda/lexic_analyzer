@@ -5,3 +5,6 @@ PROCEDURE mux IS
 BEGIN
 var := var + 2 ;
 END mux;
+
+TYPE varA IS DIGITS ;
+varA := 12.5 ;

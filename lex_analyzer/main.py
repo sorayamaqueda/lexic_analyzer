@@ -131,7 +131,7 @@ def t_INT(t):
 
 # Floats
 def t_FLOAT(t):
-    r'\d+\.\d+'
+    r'[+-]?([0-9]*[.])?[0-9]+'
     try:
         t.value = float(t.value)
     except ValueError:
@@ -145,14 +145,14 @@ def t_FLOAT(t):
 def t_USE(t):
     r'use'
     t.type = reserved.get(t.value, 'USE')
-    print(Fore.BLUE + '\nNew Context declared...')
+    print(Fore.CYAN + '\nNew Context declared...')
     return t
 
 # procedure
 def t_PROCEDURE(t):
     r'procedure'
     t.type = reserved.get(t.value, 'PROCEDURE')
-    print(Fore.BLUE + '\nProcedure delcared...')
+    print(Fore.CYAN + '\nProcedure delcared...')
     return t
 
 # Characters to ignore
@@ -162,14 +162,14 @@ def t_PROCEDURE(t):
 def t_TAB(t):
     r' \t'
     t.lexer.lineno += t.value.count('\t')
-    print(Fore.BLUE + '\nSkipped tab...')
+    print(Fore.CYAN + '\nSkipped tab...')
     pass
 
 # New Line
 def t_NEWLINE(t):
     r' \n'
     t.lexer.lineno += t.value.count('\n')
-    print(Fore.BLUE + '\nSkipped new line...')
+    print(Fore.CYAN + '\nSkipped new line...')
     pass
 
 # Comment
@@ -192,14 +192,14 @@ lexer = lex.lex()
 def t_ARRAY(t):
     r'array'
     t.type = 'ARRAY'
-    print(Fore.BLUE + '\nArray declared...')
+    print(Fore.CYAN + '\nArray declared...')
     return t
 
 # begin
 def t_BEGIN(t):
     r'begin'
     t.type = reserved.get(t.value, 'BEGIN')
-    print(Fore.BLUE + '\nBegin procedure')
+    print(Fore.CYAN + '\nBegin procedure')
     return t
 
 # else
@@ -528,7 +528,7 @@ while True:
         if not token:
             break   # No more input
         
-        if token.value in reserved.values(): print('Reserved word')
+        if token.value in reserved.values(): print(Fore.RESET + 'Reserved word')
 
         print(Fore.GREEN + '\nToken found')
         print(token.type, token.value, token.lineno, '\n')
