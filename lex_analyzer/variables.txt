@@ -16,3 +16,9 @@ for j in var loop
         varA := 0;
     end if;
 end loop;
+
+type lu is digits;
+
+type arr is array(0...5);
+type arr2 is array(0..5,0..5);
+type arr3 is array(0...5,0...5,0...5);

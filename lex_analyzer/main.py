@@ -94,6 +94,14 @@ names = { }
 # Error Count
 err = []
 
+# Token Count
+parsedTokens = []
+
+# Output Files
+errorLog = open('ErrorLogs.txt', mode='w')
+tokenLog = open('TokenLog.txt', mode='w')
+SymbolTable = open('SymbolTable.txt', mode='w')
+
 # Token Functions
 # Regex definition in functions. This implemenation is useful because
 # it allows us to manipulate the value of the token received.
@@ -184,7 +192,7 @@ def t_comment(t):
 # Error Handling
 def t_error(t):
     print(Fore.RED + 'Illegal character %s' % t.value[0] + t.type)
-    err.append({'Token Error': 'Illegal char at line ' + t.lineno})
+    err.append({'Token Error': 'Illegal char at line ' + str(t.lineno)})
     t.lexer.skip(1)
 
 # Building the lexer
@@ -415,7 +423,7 @@ def p_P(p):
 def operator_type(t):
     op = 0
     try:
-        op = t_INT(t)
+        op = t_NUMBER(t)
     except:
         op = t_FLOAT(t)
     return op
@@ -469,7 +477,7 @@ def p_E(p):
 
 # Variables
 def data_type(t):
-    if t_INT(t) : return t_INT(t)
+    if t_NUMBER(t) : return t_NUMBER(t)
     elif t_FLOAT(t) : return t_FLOAT(t)
     else : return t_ARRAY(t)
 
@@ -511,13 +519,14 @@ def p_R(p):
 
 def p_V(p):
     '''
-    V : TYPE ID IS INT SEMICOLON 
-      | TYPE ID IS FLOAT SEMICOLON
-      | TYPE ID IS ARRAY R SEMICOLON
-      | TYPE ID SEMICOLON
+    V : TYPE ID IS INT SEMICOLON NEWLINE
+      | TYPE ID IS FLOAT SEMICOLON NEWLINE
+      | TYPE ID IS ARRAY R SEMICOLON NEWLINE
+      | TYPE ID SEMICOLON NEWLINE
+      | A
     '''    
 
-    if p[4] in names():
+    if p[2] in names():
         print('\nA variable cannot be declared twice')
     else:
         names[p[2]] = p[4]
@@ -547,15 +556,34 @@ while True:
 
         print(Fore.LIGHTGREEN_EX + '\nToken found')
         print(token.type, token.value, token.lineno, '\n')
+        parsedTokens.append([{ 'Type' : token.type }, { 'Value' : token.value }, { 'Address' : token.lineno }])
     break
 result = parser.parse(data)
 print(Fore.LIGHTYELLOW_EX + '\nSymbol Table:')
 print(names)
+SymbolTable.write(str(names))
+
 print(Fore.MAGENTA + '\nAnalysis complete...\n')
 print(Fore.LIGHTRED_EX + '\nErrors:')
 for e in err:
     for errorKey, errorValue in e.items():
         print(Fore.LIGHTRED_EX + errorKey + ': ' + errorValue)
+        errorLog.write(str(Fore.LIGHTRED_EX + errorKey + ': ' + errorValue))
+
+print(Fore.LIGHTBLACK_EX + '\n\nTokens')
+for parsedToken in parsedTokens:
+    print('\n')
+    print(Fore.LIGHTWHITE_EX + '*************************************')
+    tokenLog.write('\n')
+    tokenLog.write(str(Fore.LIGHTWHITE_EX + '*************************************'))
+    for pT in parsedToken:
+        for key, value in pT.items():
+            print(Fore.LIGHTMAGENTA_EX + key + ' ' + str(value))
+            tokenLog.write(str(Fore.LIGHTMAGENTA_EX + key + ' ' + str(value)))
+            print(Fore.LIGHTMAGENTA_EX + '-------------------------------------')
+            tokenLog.write(str(Fore.LIGHTMAGENTA_EX + '-------------------------------------'))
+    print(Fore.LIGHTWHITE_EX + '*************************************')
+    tokenLog.write(str(Fore.LIGHTWHITE_EX + '*************************************'))
 
 # Sources:
 # https://programmerclick.com/article/9778279087/#1_Preface_and_Requirements_2
