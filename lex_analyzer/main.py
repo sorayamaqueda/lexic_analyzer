@@ -473,7 +473,6 @@ def p_E(p):
     print(Fore.BLUE + 'Expression: ' + str(expr))
 
     p[0] = expr
-    names[p[0]] = expr
 
 # Variables
 def data_type(t):
@@ -526,10 +525,10 @@ def p_V(p):
       | A
     '''    
 
-    if p[2] in names():
+    if p[2] in names.keys():
         print('\nA variable cannot be declared twice')
     else:
-        names[p[2]] = p[4]
+        names[p[2]] = p[4] # Validate when a var is declared without initial value
     
     print(Fore.BLUE + 'Variable declared: ' + str(p))
 
@@ -575,15 +574,15 @@ for parsedToken in parsedTokens:
     print('\n')
     print(Fore.LIGHTWHITE_EX + '*************************************')
     tokenLog.write('\n')
-    tokenLog.write(str(Fore.LIGHTWHITE_EX + '*************************************'))
+    tokenLog.write(str(Fore.LIGHTWHITE_EX + ':'))
     for pT in parsedToken:
         for key, value in pT.items():
             print(Fore.LIGHTMAGENTA_EX + key + ' ' + str(value))
             tokenLog.write(str(Fore.LIGHTMAGENTA_EX + key + ' ' + str(value)))
             print(Fore.LIGHTMAGENTA_EX + '-------------------------------------')
-            tokenLog.write(str(Fore.LIGHTMAGENTA_EX + '-------------------------------------'))
+            tokenLog.write(str(Fore.LIGHTMAGENTA_EX + ';'))
     print(Fore.LIGHTWHITE_EX + '*************************************')
-    tokenLog.write(str(Fore.LIGHTWHITE_EX + '*************************************'))
+    tokenLog.write(str(Fore.LIGHTWHITE_EX + ':'))
 
 # Sources:
 # https://programmerclick.com/article/9778279087/#1_Preface_and_Requirements_2
