@@ -32,7 +32,9 @@ reserved = {
     'use' : 'USE',
     'with' : 'WITH',
     'while' : 'WHILE',
-    'then' : 'THEN'
+    'then' : 'THEN',
+    'and' : 'AND',
+    'or' : 'OR'
 }
 
 tokens = [
@@ -91,6 +93,12 @@ precedence = (
 # Dictionary for Variable Names
 names = { }
 
+# Operands
+operands = []
+
+# Operators
+operators = []
+
 # Error Count
 err = []
 
@@ -110,6 +118,7 @@ SymbolTable = open('SymbolTable.txt', mode='w')
 def t_ID(t):
     r'[a-zA-Z_][a-zA-Z_0-9_]*'
     t.type = reserved.get(t.value, 'ID') # Check for reserved words
+    if t.value not in tokens and not KeyError: names[t.value]
     print(Fore.LIGHTGREEN_EX + '\nID: ' + t.value)
     
     return t
@@ -245,6 +254,18 @@ def t_IF(t):
     t.type = reserved.get(t.value, 'IF')
     return t
 
+# and
+def t_AND(t):
+    r'and'
+    t.type = reserved.get(t.value, 'AND')
+    return t
+
+# or
+def t_OR(t):
+    r'or'
+    t.type = reserved.get(t.value, 'OR')
+    return t
+
 # in
 def t_IN(t):
     r'in'
@@ -318,22 +339,23 @@ def while_loop(t):
         eval(loopBody)
 
 def for_loop(t):
-    expr = p_V(t[1]) # Get the variable declaration
+    print(t)
+    # expr = p_V(t[1]) # Get the variable declaration
 
-    # Assert that loop structure is properly declared
-    isValid = t_FOR(t[1]) and t_IN(t[3]) and t_LOOP(t[5]) and t_END(t[7])
+    # # Assert that loop structure is properly declared
+    # isValid = t_FOR(t[1]) and t_IN(t[3]) and t_LOOP(t[5]) and t_END(t[7])
 
-    if isValid:
-        isValidRange = p_R(t[4]) # Assert that range is properly declared
-        if isValidRange:
-            loopRange = p_R(t[4]) # Get loop range
-            try:
-                loopBody = p_S(t[6])
-            except:
-                loopBody = p_A(t[6])
+    # if isValid:
+    #     isValidRange = p_R(t[4]) # Assert that range is properly declared
+    #     if isValidRange:
+    #         loopRange = p_R(t[4]) # Get loop range
+    #         try:
+    #             loopBody = p_S(t[6])
+    #         except:
+    #             loopBody = p_A(t[6])
             
-        for i in loopRange:
-            eval(loopBody)
+    #     for i in loopRange:
+    #         eval(loopBody)
      
 def if_loop(t):
     expr = p_E(t[1])
@@ -377,7 +399,7 @@ def p_WHILESTATEMENT(p):
 
 def p_FORSTATEMENT(p):
     '''
-    FORSTATEMENT :  FOR V IN R LOOP S END LOOP SEMICOLON NEWLINE
+    FORSTATEMENT : FOR V IN R LOOP S END LOOP SEMICOLON NEWLINE
                  | FOR V IN R LOOP A END LOOP SEMICOLON NEWLINE
     '''
     print(Fore.BLUE + '\nFor loop declared')
@@ -401,8 +423,7 @@ def p_A(p):
 
     p[0] = operator_type(p[3])
     print(p[0])
-    index = names.keys().index(p[1])
-    names[index] = p[3]
+    names[p[1]] = p[3]
 
 # Procedures
 def p_P(p):
@@ -465,6 +486,10 @@ def p_E(p):
     | V LTE V
     | V LTE NUMBER
     | V LTE FLOATNUM
+    | V AND V
+    | V OR V
+    | BRAOPEN V AND V BRACLOSE
+    | E BRAOPEN V OR V BRACLOSE
     '''
 
     op1 = operator_type(p[1]) # Define if it's
@@ -473,7 +498,7 @@ def p_E(p):
     print(Fore.BLUE + 'Expression: ' + str(expr))
 
     p[0] = expr
-
+    
 # Variables
 def data_type(t):
     if t_NUMBER(t) : return t_NUMBER(t)
@@ -551,7 +576,11 @@ while True:
         if not token:
             break   # No more input
         
-        if token.value in reserved.values(): print(Fore.RESET + 'Reserved word')
+        if token.type in reserved.values(): print(Fore.RESET + 'Reserved word')
+
+        # Arithmetic operations translations
+        if token.type == 'ID': operands.append(token.value)
+        if token.type == ('PLUS' or 'MINUS' or 'DIVIDE' or 'LTE' or 'LT' or 'GTE' or 'GT' or 'TIMES') and token.value not in operands: operators.append(token.value)
 
         print(Fore.LIGHTGREEN_EX + '\nToken found')
         print(token.type, token.value, token.lineno, '\n')
@@ -583,6 +612,14 @@ for parsedToken in parsedTokens:
             tokenLog.write(str(Fore.LIGHTMAGENTA_EX + ';'))
     print(Fore.LIGHTWHITE_EX + '*************************************')
     tokenLog.write(str(Fore.LIGHTWHITE_EX + ':'))
+
+print(Fore.LIGHTWHITE_EX + '\nExpressions: \n')
+print('Operands: \n')
+print(operands)
+print('Operators: \n')
+print(operators)
+# for i in operands:
+#     print(Fore.LIGHTWHITE_EX + '\n' + operands[i] + '\n' + operators[i] + '\n')
 
 # Sources:
 # https://programmerclick.com/article/9778279087/#1_Preface_and_Requirements_2
