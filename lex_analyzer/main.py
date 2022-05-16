@@ -2,6 +2,7 @@
 # Lenguajes y Traductores - Analizador de Léxico
 
 # Ply tools to create lexic analyzer
+from unicodedata import name
 from colorama import Fore
 import numpy as np
 import sys
@@ -95,6 +96,7 @@ names = { }
 
 # Operands
 operands = []
+values = []
 
 # Operators
 operators = []
@@ -458,6 +460,14 @@ def evaluator(t, op1, op2):
     elif t == '>' : return op1 > op2
     elif t == '=' : return op1 == op2
 
+# Quadruples
+def quadruples():
+    end = max(len(operands), len(operators))
+    result = 0
+    for i in range(0, len(operands), 2):
+        result = evaluator(operators[i::], values[i::], values[i::1])
+        print(str(operators[i:i:]) + ' ' + str(operands[i:i:]) + ' ' + str(operands[i::1]) + ' ' + str(result))
+
 def p_E(p):
     '''
     E : V GT FLOATNUM 
@@ -580,6 +590,8 @@ while True:
 
         # Arithmetic operations translations
         if token.type == 'ID': operands.append(token.value)
+        if token.value not in names: values.append(0) 
+        else: values.append(names[token.value])
         if token.type == ('PLUS' or 'MINUS' or 'DIVIDE' or 'LTE' or 'LT' or 'GTE' or 'GT' or 'TIMES') and token.value not in operands: operators.append(token.value)
 
         print(Fore.LIGHTGREEN_EX + '\nToken found')
@@ -618,8 +630,7 @@ print('Operands: \n')
 print(operands)
 print('Operators: \n')
 print(operators)
-# for i in operands:
-#     print(Fore.LIGHTWHITE_EX + '\n' + operands[i] + '\n' + operators[i] + '\n')
+quadruples()
 
 # Sources:
 # https://programmerclick.com/article/9778279087/#1_Preface_and_Requirements_2
