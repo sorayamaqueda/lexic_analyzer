@@ -2,7 +2,6 @@
 # Lenguajes y Traductores - Analizador de Léxico
 
 # Ply tools to create lexic analyzer
-from unicodedata import name
 from colorama import Fore
 import numpy as np
 import sys
@@ -67,14 +66,14 @@ t_MINUS = r'\-'
 t_DIVIDE = r'/'
 t_LTE = r'<\|='
 t_GTE = r'>\|='
-t_EQUAL = r'='
+t_EQUAL = r'\='
 t_TIMES = r'\*'
 t_GT = r'>'
 t_LT = r'<'
 
 # Special Tokens
 t_SEMICOLON = r'\;'
-t_ASSIGN = r':='
+t_ASSIGN = r'\:='
 t_SUSPENSIVE = r'\.\.\.'
 t_COMMA = r','
 t_BRAOPEN = r'\('
@@ -100,6 +99,13 @@ values = []
 
 # Operators
 operators = []
+operatorsHelper = ('PLUS' , 'MINUS' , 'DIVIDE' , 'LTE' , 'LT' , 'GTE' , 'GT' , 'TIMES' , 'ASSIGN')
+
+# loops
+loops = []
+
+# Quadruples
+quad = []
 
 # Error Count
 err = []
@@ -303,7 +309,7 @@ def t_WHILE(t):
 
 # then
 def t_THEN(t):
-    r'then'
+    r'\then'
     t.type = reserved.get(t.value, 'THEN')
     return t
 
@@ -462,11 +468,13 @@ def evaluator(t, op1, op2):
 
 # Quadruples
 def quadruples():
-    end = max(len(operands), len(operators))
-    result = 0
-    for i in range(0, len(operands), 2):
-        result = evaluator(operators[i::], values[i::], values[i::1])
-        print(str(operators[i:i:]) + ' ' + str(operands[i:i:]) + ' ' + str(operands[i::1]) + ' ' + str(result))
+    while len(operators) > 0:
+        i = 0
+        op = operators.pop()
+        quad.append(op)
+        quad.append(operands[i])
+        quad.append(operands[i + 1])
+        i+=1
 
 def p_E(p):
     '''
@@ -508,6 +516,10 @@ def p_E(p):
     print(Fore.BLUE + 'Expression: ' + str(expr))
 
     p[0] = expr
+
+    quad.append(p[2])
+    quad.append(op1)
+    quad.append(op2)
     
 # Variables
 def data_type(t):
@@ -560,7 +572,7 @@ def p_V(p):
       | A
     '''    
 
-    if p[2] in names.keys():
+    if p[2] in names.keys() or p[2] in operands:
         print('\nA variable cannot be declared twice')
     else:
         names[p[2]] = p[4] # Validate when a var is declared without initial value
@@ -585,14 +597,30 @@ while True:
         token = lexer.token()
         if not token:
             break   # No more input
-        
-        if token.type in reserved.values(): print(Fore.RESET + 'Reserved word')
-
+        # Token identification correction
+        if token.value == 'hen': token.value = 'then'
+        # Identifying reserved words
+        if token.type in reserved.values(): print(Fore.RESET + 'Reserved word ' + token.value)
         # Arithmetic operations translations
-        if token.type == 'ID': operands.append(token.value)
+        if token.value in operands: 
+            copyOperators = operators.copy()
+            # If latest detected operator is not Assign, then we're repeating a variable name
+            if copyOperators.pop() != ':=':
+                print(Fore.LIGHTRED_EX + '\nVariable cannot be delcared twice.')
+                err.append({'ERROR:': 'A variable cannot be declared twice. AT LINE ' + str(token.lineno) })
+        elif token.type == 'ID' and token.value not in reserved.keys(): 
+            operands.append(token.value)
+            names[token.value]
         if token.value not in names: values.append(0) 
         else: values.append(names[token.value])
-        if token.type == ('PLUS' or 'MINUS' or 'DIVIDE' or 'LTE' or 'LT' or 'GTE' or 'GT' or 'TIMES') and token.value not in operands: operators.append(token.value)
+        # If token is of type operator, we add it to the operators stack
+        if token.type in operatorsHelper: 
+            operators.append(token.value)
+        # If a loop is being declared, we start the loops stack for quadruples
+        if token.type == ('IF' or 'OR' or 'ELSE' or 'ELIF' or 'END'): 
+            loops.append(token.value) # Here we add the beginning or end of a loop
+        if token.type == ('EQUAL' or 'GTE' or 'LTE' or 'LT' or 'GT'):
+            loops.append(token.value)
 
         print(Fore.LIGHTGREEN_EX + '\nToken found')
         print(token.type, token.value, token.lineno, '\n')
@@ -628,9 +656,12 @@ for parsedToken in parsedTokens:
 print(Fore.LIGHTWHITE_EX + '\nExpressions: \n')
 print('Operands: \n')
 print(operands)
+print('\n')
 print('Operators: \n')
 print(operators)
-quadruples()
+
+print(Fore.YELLOW + '\nQuadruples: \n')
+print(quad)
 
 # Sources:
 # https://programmerclick.com/article/9778279087/#1_Preface_and_Requirements_2

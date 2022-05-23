@@ -1,1 +1,1 @@
-[91mSyntax Error: Syntax Error at line 12
+[91mERROR:: A variable cannot be declared twice. AT LINE 9[91mSyntax Error: Syntax Error at line 10
