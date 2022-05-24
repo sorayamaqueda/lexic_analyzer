@@ -66,7 +66,7 @@ t_MINUS = r'\-'
 t_DIVIDE = r'/'
 t_LTE = r'<\|='
 t_GTE = r'>\|='
-t_EQUAL = r'\='
+t_EQUAL = r'\|='
 t_TIMES = r'\*'
 t_GT = r'>'
 t_LT = r'<'
@@ -103,6 +103,7 @@ operatorsHelper = ('PLUS' , 'MINUS' , 'DIVIDE' , 'LTE' , 'LT' , 'GTE' , 'GT' , '
 
 # loops
 loops = []
+loopsHelper = ('IF' or 'OR' or 'ELSE' or 'ELIF' or 'END' or 'FOR' or 'LOOP')
 
 # Quadruples
 quad = []
@@ -467,14 +468,8 @@ def evaluator(t, op1, op2):
     elif t == '=' : return op1 == op2
 
 # Quadruples
-def quadruples():
-    while len(operators) > 0:
-        i = 0
-        op = operators.pop()
-        quad.append(op)
-        quad.append(operands[i])
-        quad.append(operands[i + 1])
-        i+=1
+# def quadruples():
+
 
 def p_E(p):
     '''
@@ -610,16 +605,16 @@ while True:
                 err.append({'ERROR:': 'A variable cannot be declared twice. AT LINE ' + str(token.lineno) })
         elif token.type == 'ID' and token.value not in reserved.keys(): 
             operands.append(token.value)
-            names[token.value]
+            names[token.value] = ''
         if token.value not in names: values.append(0) 
         else: values.append(names[token.value])
         # If token is of type operator, we add it to the operators stack
         if token.type in operatorsHelper: 
             operators.append(token.value)
         # If a loop is being declared, we start the loops stack for quadruples
-        if token.type == ('IF' or 'OR' or 'ELSE' or 'ELIF' or 'END'): 
+        if token.type in loopsHelper: 
             loops.append(token.value) # Here we add the beginning or end of a loop
-        if token.type == ('EQUAL' or 'GTE' or 'LTE' or 'LT' or 'GT'):
+        if token.type == operatorsHelper:
             loops.append(token.value)
 
         print(Fore.LIGHTGREEN_EX + '\nToken found')
@@ -660,8 +655,19 @@ print('\n')
 print('Operators: \n')
 print(operators)
 
-print(Fore.YELLOW + '\nQuadruples: \n')
+print(Fore.LIGHTWHITE_EX + '\nQuadruples: \n')
+i = 0
+while len(operators) > 0:
+    op = operators.pop()
+    quad.append(op)
+    quad.append(operands[i])
+    quad.append(operands[i + 1])
+    if i <= len(operands): i = 0
+    quad.append('T' + str(i))
+    i = i + 1
 print(quad)
+
+print(loops)
 
 # Sources:
 # https://programmerclick.com/article/9778279087/#1_Preface_and_Requirements_2
