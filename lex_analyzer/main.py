@@ -103,6 +103,7 @@ operatorsHelper = ('PLUS' , 'MINUS' , 'DIVIDE' , 'LTE' , 'LT' , 'GTE' , 'GT' , '
 
 # loops
 loops = []
+cycles = []
 loopsHelper = ('IF' or 'OR' or 'ELSE' or 'ELIF' or 'END' or 'FOR' or 'LOOP')
 
 # Quadruples
@@ -118,6 +119,7 @@ parsedTokens = []
 errorLog = open('ErrorLogs.txt', mode='w')
 tokenLog = open('TokenLog.txt', mode='w')
 SymbolTable = open('SymbolTable.txt', mode='w')
+Quadruples = open('Quadruples.txt', mode='w')
 
 # Token Functions
 # Regex definition in functions. This implemenation is useful because
@@ -323,11 +325,6 @@ def p_PROGRAM(p):
     '''
     P : WITH P
     '''
-    # '''
-    # P : WITH C USE C P
-    #   | WITH C P
-    #   | WITH P
-    # '''
     p[0] = p[2]
     print("Interpret Program")
 
@@ -627,12 +624,15 @@ print(names)
 SymbolTable.write(str(names))
 
 print(Fore.MAGENTA + '\nAnalysis complete...\n')
+
+# Errors
 print(Fore.LIGHTRED_EX + '\nErrors:')
 for e in err:
     for errorKey, errorValue in e.items():
         print(Fore.LIGHTRED_EX + errorKey + ': ' + errorValue)
         errorLog.write(str(Fore.LIGHTRED_EX + errorKey + ': ' + errorValue))
 
+# Tokens
 print(Fore.LIGHTBLACK_EX + '\n\nTokens')
 for parsedToken in parsedTokens:
     print('\n')
@@ -648,6 +648,7 @@ for parsedToken in parsedTokens:
     print(Fore.LIGHTWHITE_EX + '*************************************')
     tokenLog.write(str(Fore.LIGHTWHITE_EX + ':'))
 
+# Expressions
 print(Fore.LIGHTWHITE_EX + '\nExpressions: \n')
 print('Operands: \n')
 print(operands)
@@ -655,19 +656,44 @@ print('\n')
 print('Operators: \n')
 print(operators)
 
+# Quadruples
 print(Fore.LIGHTWHITE_EX + '\nQuadruples: \n')
 i = 0
-while len(operators) > 0:
-    op = operators.pop()
-    quad.append(op)
+t = 0
+for operator in operators:
+    quad.append(operator)
     quad.append(operands[i])
+    if i > len(operands): i = 0
     quad.append(operands[i + 1])
-    if i <= len(operands): i = 0
-    quad.append('T' + str(i))
-    i = i + 1
-print(quad)
+    quad.append('T' + str(t))
+    t+=1
 
-print(loops)
+k = 0
+while k < len(quad):
+    print(quad[k:k+4])
+    print('\n')
+    Quadruples.write(str(quad[k:k+4]))
+    Quadruples.write('\n')
+    k+=4
+
+j = 0
+for l in loops:
+    if l == 'if':
+        cycles.append(l)
+        cycles.append(quad[j: j + 2])
+        cycles.append('goto')
+        cycles.append('F')
+        cycles.append('T' + str(j))
+        cycles.append('')
+
+    if l == 'for':
+        opsList = list(operands)
+        cycles.append(l)
+        cycles.append(operands[j])
+        cycles.append('')
+print(Fore.LIGHTBLACK_EX + '\nLoops and Cycles\n')
+#print(loops)
+print(cycles)
 
 # Sources:
 # https://programmerclick.com/article/9778279087/#1_Preface_and_Requirements_2
@@ -676,44 +702,3 @@ print(loops)
 # https://regex101.com/
 # https://www.w3schools.com/python/python_regex.asp
 # https://alexgaynor.net/2008/nov/10/getting-started-ply-part-3/
-
-# Range Regex Explanation
-
-# 1st Capturing Group ([0-9]+\.\.\.[0-9]+)+\,*([0-9]+\.\.\.[0-9]+)*\,*([0-9]+\.\.\.[0-9]+)*
-
-# Match a single character present in the list below [0-9]
-# + matches the previous token between one and unlimited times, as many times as possible, giving back as needed (greedy)
-# 0-9 matches a single character in the range between 0 (index 48) and 9 (index 57) (case sensitive)
-# \. matches the character . with index 4610 (2E16 or 568) literally (case sensitive)
-# \. matches the character . with index 4610 (2E16 or 568) literally (case sensitive)
-# \. matches the character . with index 4610 (2E16 or 568) literally (case sensitive)
-
-# Match a single character present in the list below [0-9]
-# + matches the previous token between one and unlimited times, as many times as possible, giving back as needed (greedy)
-# 0-9 matches a single character in the range between 0 (index 48) and 9 (index 57) (case sensitive)
-# \, matches the character , with index 4410 (2C16 or 548) literally (case sensitive)
-# + matches the previous token between one and unlimited times, as many times as possible, giving back as needed (greedy)
-
-# Match a single character present in the list below [0-9]
-# 0-9 matches a single character in the range between 0 (index 48) and 9 (index 57) (case sensitive)
-# \. matches the character . with index 4610 (2E16 or 568) literally (case sensitive)
-# \. matches the character . with index 4610 (2E16 or 568) literally (case sensitive)
-# \. matches the character . with index 4610 (2E16 or 568) literally (case sensitive)
-
-# Match a single character present in the list below [0-9]
-# + matches the previous token between one and unlimited times, as many times as possible, giving back as needed (greedy)
-# 0-9 matches a single character in the range between 0 (index 48) and 9 (index 57) (case sensitive)
-# \, matches the character , with index 4410 (2C16 or 548) literally (case sensitive)
-
-# Match a single character present in the list below [0-9]
-# 0-9 matches a single character in the range between 0 (index 48) and 9 (index 57) (case sensitive)
-# \. matches the character . with index 4610 (2E16 or 568) literally (case sensitive)
-# \. matches the character . with index 4610 (2E16 or 568) literally (case sensitive)
-# \. matches the character . with index 4610 (2E16 or 568) literally (case sensitive)
-# Match a single character present in the list below [0-9]
-# + matches the previous token between one and unlimited times, as many times as possible, giving back as needed (greedy)
-# 0-9 matches a single character in the range between 0 (index 48) and 9 (index 57) (case sensitive)
-
-# Global pattern flags 
-# g modifier: global. All matches (don't return after first match)
-# m modifier: multi line. Causes ^ and $ to match the begin/end of each line (not only begin/end of string)
