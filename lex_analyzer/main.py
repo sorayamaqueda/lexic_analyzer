@@ -101,10 +101,12 @@ values = []
 operators = []
 operatorsHelper = ('PLUS' , 'MINUS' , 'DIVIDE' , 'LTE' , 'LT' , 'GTE' , 'GT' , 'TIMES' , 'ASSIGN')
 
-# loops
-loops = []
-cycles = []
-loopsHelper = ('IF' or 'OR' or 'ELSE' or 'ELIF' or 'END' or 'FOR' or 'LOOP')
+# Loops Translation
+loops = [] # Stack for generated code
+jumps = [] # Jump Stack
+whileDirs = [] # Stack to return to while if true
+loopsHelper = ('IF' , 'OR' , 'ELSE' , 'ELIF' , 'END' , 'FOR' , 'LOOP' , 'WHILE')
+loopCnt = 0
 
 # Quadruples
 quad = []
@@ -600,6 +602,9 @@ while True:
             if copyOperators.pop() != ':=':
                 print(Fore.LIGHTRED_EX + '\nVariable cannot be delcared twice.')
                 err.append({'ERROR:': 'A variable cannot be declared twice. AT LINE ' + str(token.lineno) })
+            else:
+                copyOperands = operands.copy()
+                names[token.value] = copyOperands.pop()
         elif token.type == 'ID' and token.value not in reserved.keys(): 
             operands.append(token.value)
             names[token.value] = ''
@@ -611,6 +616,9 @@ while True:
         # If a loop is being declared, we start the loops stack for quadruples
         if token.type in loopsHelper: 
             loops.append(token.value) # Here we add the beginning or end of a loop
+            loopCnt+=1 # Increment counter
+            jumps.append(loopCnt - 1) # Register jumpç
+            if token.type == 'WHILE': whileDirs.append(token.lineno)
         if token.type == operatorsHelper:
             loops.append(token.value)
 
@@ -665,7 +673,8 @@ for operator in operators:
     quad.append(operands[i])
     if i > len(operands): i = 0
     quad.append(operands[i + 1])
-    quad.append('T' + str(t))
+    if operator == ':=': quad.append(operands[i])
+    else: quad.append('T' + str(t))
     t+=1
 
 k = 0
@@ -676,24 +685,52 @@ while k < len(quad):
     Quadruples.write('\n')
     k+=4
 
-j = 0
-for l in loops:
-    if l == 'if':
-        cycles.append(l)
-        cycles.append(quad[j: j + 2])
-        cycles.append('goto')
-        cycles.append('F')
-        cycles.append('T' + str(j))
-        cycles.append('')
-
-    if l == 'for':
-        opsList = list(operands)
-        cycles.append(l)
-        cycles.append(operands[j])
-        cycles.append('')
+# Loops & Cycles Translations
 print(Fore.LIGHTBLACK_EX + '\nLoops and Cycles\n')
-#print(loops)
-print(cycles)
+j = 0
+gotoTrue = ''
+quadStr = ''
+temp = ''
+exprIndex = 0
+for loop in loops:
+    if (j + 4) > len(quad): j = 0
+    quadStr = quad[j:j+4]
+    if loop == 'if':
+        print(Fore.LIGHTYELLOW_EX + 'for loop...\n')
+        print(quadStr)
+        print('\n')
+        gotoTrue = quadStr[3]
+        if loop == 'then':
+            # add quadruples
+            # goto true
+            print('goto ' + gotoTrue + ' ' + str(loopCnt.pop()))
+            print('\n')
+        elif loop == 'else':
+            #End
+            jumpIndex = jumps.pop()
+            print('gotof ' + quadStr[3] + str(jumpIndex))
+            print('\n')
+        else:
+            # Open Goto
+            print("goto '' ''")
+            print('\n')
+    elif loop == 'while':
+        print(Fore.LIGHTYELLOW_EX + 'while loop...\n')
+        jumpIndex = jumps.pop()
+        exprIndex = quad.index('>') or quad.index('<') or quad.index('<=') or quad.index('>=')
+        temp = quad[exprIndex:exprIndex + 4]
+        print(quadStr)
+        print('\n')
+        print('gotof ' + str(quadStr[3]) + ' ' + str(jumpIndex))
+        if quadStr != temp: print(quadStr)
+        else:
+            j+=4
+            quadStr = quad[j:j+4]
+            print(quadStr)
+        print('\n')
+        print('goto ' + str(whileDirs))
+    j+=4
+
 
 # Sources:
 # https://programmerclick.com/article/9778279087/#1_Preface_and_Requirements_2
