@@ -91,7 +91,9 @@ precedence = (
 )
 
 # Dictionary for Variable Names
-names = { }
+names = [] # Symbol Table
+tempSymb =[] # Temporary to append until len == 4
+tempId = '' # To determine unfinished var declaration
 
 # Operands
 operands = []
