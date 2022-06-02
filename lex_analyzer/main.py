@@ -93,7 +93,10 @@ precedence = (
 # Dictionary for Variable Names
 names = [] # Symbol Table
 tempSymb =[] # Temporary to append until len == 4
-tempId = '' # To determine unfinished var declaration
+tempId = [] # To determine unfinished var declaration
+tempLineno = 0 # To assert is the same line number
+varTypesHelper = ('INT', 'FLOAT')
+varValuesHelper = ('NUMBER', 'FLOATNUM')
 
 # Operands
 operands = []
@@ -133,7 +136,10 @@ Quadruples = open('Quadruples.txt', mode='w')
 def t_ID(t):
     r'[a-zA-Z_][a-zA-Z_0-9_]*'
     t.type = reserved.get(t.value, 'ID') # Check for reserved words
-    if t.value not in tokens and not KeyError: names[t.value]
+    #if t.value not in tokens and not KeyError: names[t.value]
+    if t.value == 'ype': 
+        t.value = 'type'
+        t.type = 'TYPE'
     print(Fore.LIGHTGREEN_EX + '\nID: ' + t.value)
     
     return t
@@ -468,10 +474,6 @@ def evaluator(t, op1, op2):
     elif t == '>' : return op1 > op2
     elif t == '=' : return op1 == op2
 
-# Quadruples
-# def quadruples():
-
-
 def p_E(p):
     '''
     E : V GT FLOATNUM 
@@ -595,21 +597,19 @@ while True:
             break   # No more input
         # Token identification correction
         if token.value == 'hen': token.value = 'then'
-        # Identifying reserved words
-        if token.type in reserved.values(): print(Fore.RESET + 'Reserved word ' + token.value)
+        if token.type in reserved.values(): print(Fore.RESET + 'Reserved word ' + str(token.value))
         # Arithmetic operations translations
         if token.value in operands: 
             copyOperators = operators.copy()
             # If latest detected operator is not Assign, then we're repeating a variable name
-            if copyOperators.pop() != ':=':
+            if len(copyOperators) > 0 and copyOperators.pop() != ':=':
                 print(Fore.LIGHTRED_EX + '\nVariable cannot be delcared twice.')
                 err.append({'ERROR:': 'A variable cannot be declared twice. AT LINE ' + str(token.lineno) })
             else:
                 copyOperands = operands.copy()
-                names[token.value] = copyOperands.pop()
+                #names[token.value] = copyOperands.pop()
         elif token.type == 'ID' and token.value not in reserved.keys(): 
             operands.append(token.value)
-            names[token.value] = ''
         if token.value not in names: values.append(0) 
         else: values.append(names[token.value])
         # If token is of type operator, we add it to the operators stack
@@ -623,6 +623,20 @@ while True:
             if token.type == 'WHILE': whileDirs.append(token.lineno)
         if token.type == operatorsHelper:
             loops.append(token.value)
+        # Symbol Table
+        if token.value == 'type': tempLineno = token.lineno # Store current line number
+        if token.type == 'ID' and token.lineno == tempLineno:
+            tempSymb.append(token.value) # Store variable ID
+            tempId.append(token.value) #Store temporary id to determine if its empty
+        if token.type in varTypesHelper and token.lineno == tempLineno:
+            tempSymb.append(token.value)
+        if token.type in varValuesHelper:
+            if len(tempSymb) < 4:
+                tempSymb.append(token.value) # Value
+                tempSymb.append(id(token.value)) # Dir
+        if len(tempSymb) == 4:
+            names.append(tempSymb)
+            tempSymb = [] # Reset
 
         print(Fore.LIGHTGREEN_EX + '\nToken found')
         print(token.type, token.value, token.lineno, '\n')
@@ -630,7 +644,8 @@ while True:
     break
 result = parser.parse(data)
 print(Fore.LIGHTYELLOW_EX + '\nSymbol Table:')
-print(names)
+for name in names:
+    print(name)
 SymbolTable.write(str(names))
 
 print(Fore.MAGENTA + '\nAnalysis complete...\n')
@@ -732,7 +747,6 @@ for loop in loops:
         print('\n')
         print('goto ' + str(whileDirs))
     j+=4
-
 
 # Sources:
 # https://programmerclick.com/article/9778279087/#1_Preface_and_Requirements_2

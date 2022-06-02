@@ -1,0 +1,6 @@
+type a is integer;
+type b is float;
+type c is integer;
+type d is float;
+
+a := 10;
