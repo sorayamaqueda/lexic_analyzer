@@ -93,10 +93,10 @@ precedence = (
 # Dictionary for Variable Names
 names = [] # Symbol Table
 tempSymb =[] # Temporary to append until len == 4
-tempId = [] # To determine unfinished var declaration
+tempValues = [] # To determine unfinished var declaration
 tempLineno = 0 # To assert is the same line number
 varTypesHelper = ('INT', 'FLOAT')
-varValuesHelper = ('NUMBER', 'FLOATNUM')
+varValuesHelper = ('NUMBER', 'FLOAT')
 
 # Operands
 operands = []
@@ -163,6 +163,7 @@ def t_NUMBER(t):
     r'\d+'
     try:
         t.value = int(t.value)
+        t.type = 'NUMBER'
     except ValueError:
         print(Fore.RED + 'Value too large %d', t.value)
         err.append({'Value Error': 'Float value too large at line ' + str(t.lineno)})
@@ -172,9 +173,10 @@ def t_NUMBER(t):
 
 # Floats
 def t_FLOAT(t):
-    r'[+-]?([0-9]*[.])?[0-9]+'
+    r'[-+]?(?:\d*\.\d+|\d+)'
     try:
         t.value = float(t.value)
+        t.type = 'FLOAT'
     except ValueError:
         print(Fore.RED + 'Value too large %d', t.value)
         err.append({'Value Error' : 'Integer Value too large at line ' + str(t.lineno)})
@@ -625,29 +627,38 @@ while True:
             loops.append(token.value)
         # Symbol Table
         if token.value == 'type': tempLineno = token.lineno # Store current line number
-        if token.type == 'ID' and token.lineno == tempLineno:
+        if token.type == 'ID' and token.lineno == tempLineno: 
             tempSymb.append(token.value) # Store variable ID
-            tempId.append(token.value) #Store temporary id to determine if its empty
-        if token.type in varTypesHelper and token.lineno == tempLineno:
+        if token.type in varTypesHelper and token.lineno == tempLineno: 
             tempSymb.append(token.value)
-        if token.type in varValuesHelper:
-            if len(tempSymb) < 4:
-                tempSymb.append(token.value) # Value
-                tempSymb.append(id(token.value)) # Dir
+        if token.type == 'FLOAT' or token.type == 'NUMBER':
+            tempValues.append(token.value)
+            tempValues.append(id(token.value))
         if len(tempSymb) == 4:
             names.append(tempSymb)
             tempSymb = [] # Reset
 
         print(Fore.LIGHTGREEN_EX + '\nToken found')
         print(token.type, token.value, token.lineno, '\n')
-        parsedTokens.append([{ 'Type' : token.type }, { 'Value' : token.value }, { 'Address' : token.lineno }])
+        parsedTokens.append([{ 'Type' : token.type }, { 'Value' : token.value }, { 'Address' : id(token.lineno) }])
     break
 result = parser.parse(data)
-print(Fore.LIGHTYELLOW_EX + '\nSymbol Table:')
-for name in names:
-    print(name)
-SymbolTable.write(str(names))
 
+# Symbol Table
+print(Fore.LIGHTYELLOW_EX + '\nSymbol Table:\n')
+n_i = 0
+v_i = 0
+variables = []
+for name in names:
+    if v_i > len(tempValues): v_i = 0
+    variables.append(name[n_i:n_i+2] + tempValues[v_i:v_i+2])
+    n_i+=2
+    v_i+=2
+for var in variables:
+    print(var)
+    print('\n')
+    SymbolTable.write(str(var))
+    SymbolTable.write('\n')
 print(Fore.MAGENTA + '\nAnalysis complete...\n')
 
 # Errors

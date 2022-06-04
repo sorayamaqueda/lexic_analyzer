@@ -4,3 +4,4 @@ type c is integer;
 type d is float;
 
 a := 10;
+b := 5.2;
