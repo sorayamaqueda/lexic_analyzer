@@ -28,3 +28,11 @@ type arr5 is integer
 for v in loop
     v := v + 1;
 end;
+
+type a is integer;
+type b is float;
+type c is integer;
+type d is float;
+
+a := 10;
+b := 5.2;

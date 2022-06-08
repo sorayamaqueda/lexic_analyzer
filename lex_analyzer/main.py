@@ -2,6 +2,7 @@
 # Lenguajes y Traductores - Analizador de Léxico
 
 # Ply tools to create lexic analyzer
+from random import randint
 from colorama import Fore
 import numpy as np
 import sys
@@ -27,14 +28,14 @@ reserved = {
     'is' : 'IS',
     'loop' : 'LOOP',
     'procedure' : 'PROCEDURE',
-    'range' : 'RANGE',
     'type' : 'TYPE',
     'use' : 'USE',
     'with' : 'WITH',
     'while' : 'WHILE',
     'then' : 'THEN',
     'and' : 'AND',
-    'or' : 'OR'
+    'or' : 'OR',
+    'of': 'OF'
 }
 
 tokens = [
@@ -90,13 +91,20 @@ precedence = (
     ('left', 'TIMES', 'DIVIDE')
 )
 
-# Dictionary for Variable Names
+# Stacks for Variable Names
 names = [] # Symbol Table
 tempSymb =[] # Temporary to append until len == 4
 tempValues = [] # To determine unfinished var declaration
 tempLineno = 0 # To assert is the same line number
-varTypesHelper = ('INT', 'FLOAT')
+varTypesHelper = ('INT', 'FLOAT', 'ARRAY')
 varValuesHelper = ('NUMBER', 'FLOAT')
+
+# Stacks for Dimensional Variables
+arrs = []
+r = 0 # Control variable for arrays: 0 as initial value, 1 if BRAOPEN is found. If BRACLOSE is found, we reset.
+arrIndex = 0 # Index to know to which array append the range (addresses)
+arrLineno = 0 # Line Number of an array
+top = 0 # Range Limit
 
 # Operands
 operands = []
@@ -156,6 +164,12 @@ def t_IS(t):
     r'is'
     t.type = reserved.get(t.value, 'IS')
     print(Fore.LIGHTGREEN_EX + '\nis of type...')
+    return t
+
+def t_OF(t):
+    r'of'
+    t.type = reserved.get(t.value, 'OF')
+    print(Fore.LIGHTGREEN_EX + '\nof...')
     return t
 
 # Integers
@@ -417,8 +431,8 @@ def p_WHILESTATEMENT(p):
 
 def p_FORSTATEMENT(p):
     '''
-    FORSTATEMENT : FOR V IN R LOOP S END LOOP SEMICOLON NEWLINE
-                 | FOR V IN R LOOP A END LOOP SEMICOLON NEWLINE
+    FORSTATEMENT : FOR V IN RANGE LOOP S END LOOP SEMICOLON NEWLINE
+                 | FOR V IN RANGE LOOP A END LOOP SEMICOLON NEWLINE
     '''
     print(Fore.BLUE + '\nFor loop declared')
 
@@ -534,12 +548,12 @@ def range_boundaries(values):
         matrix.append(np.asarray(v))
 
 # Range
-def p_R(p):
+def p_RANGE(p):
 
     '''
-    R : BRAOPEN INT SUSPENSIVE INT BRACLOSE 
-      | BRAOPEN INT SUSPENSIVE INT COMMA INT SUSPENSIVE INT BRACLOSE
-      | BRAOPEN INT SUSPENSIVE INT COMMA INT SUSPENSIVE INT COMMA INT SUSPENSIVE INT BRACLOSE
+    RANGE : BRAOPEN INT SUSPENSIVE INT BRACLOSE 
+          | BRAOPEN INT SUSPENSIVE INT COMMA INT SUSPENSIVE INT BRACLOSE
+          | BRAOPEN INT SUSPENSIVE INT COMMA INT SUSPENSIVE INT COMMA INT SUSPENSIVE INT BRACLOSE
     '''
 
     # Regular expression to find all ranges within the token received
@@ -567,7 +581,8 @@ def p_V(p):
     '''
     V : TYPE ID IS INT SEMICOLON NEWLINE
       | TYPE ID IS FLOAT SEMICOLON NEWLINE
-      | TYPE ID IS ARRAY R SEMICOLON NEWLINE
+      | TYPE ID IS ARRAY RANGE OF NUMBER SEMICOLON NEWLINE
+      | TYPE ID IS ARRAY RANGE OF FLOAT SEMICOLON NEWLINE
       | TYPE ID SEMICOLON NEWLINE
       | A
     '''    
@@ -634,9 +649,17 @@ while True:
         if token.type == 'FLOAT' or token.type == 'NUMBER':
             tempValues.append(token.value)
             tempValues.append(id(token.value))
+            if r == 1:
+                top = token.value
         if len(tempSymb) == 4:
             names.append(tempSymb)
             tempSymb = [] # Reset
+        # Dimensional Variables
+        if token.type == 'BRAOPEN':
+            r = 1 # Update Control variable
+            arrLineno = token.lineno # Store line number of array declaration
+        if token.type == 'BRACLOSE':
+            r = 0
 
         print(Fore.LIGHTGREEN_EX + '\nToken found')
         print(token.type, token.value, token.lineno, '\n')
@@ -657,6 +680,7 @@ for name in names:
 for var in variables:
     print(var)
     print('\n')
+    if len(var) > 4: quad.append('goto ' + str(var[3]))
     SymbolTable.write(str(var))
     SymbolTable.write('\n')
 print(Fore.MAGENTA + '\nAnalysis complete...\n')
@@ -758,6 +782,16 @@ for loop in loops:
         print('\n')
         print('goto ' + str(whileDirs))
     j+=4
+
+# Dimensional Variables
+print(Fore.LIGHTWHITE_EX + '\nDimensional Variables: \n')
+for var in variables:
+    if var[1] == 'array':
+        tempArr = np.empty(top, dtype=int)
+        print(str(var[0]) + ':\n')
+        print('index' + '   ' + 'address')
+        for i in range(top):
+            print(str(i) + '       ' + str(id(randint(0, 300000))) + '\n')
 
 # Sources:
 # https://programmerclick.com/article/9778279087/#1_Preface_and_Requirements_2

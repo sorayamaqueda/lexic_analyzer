@@ -1,0 +1,3 @@
+type vectorA is array(1...5, 1...5) of float;
+type vectorB is array(1...5, 1...5) of float;
+type vectorSum is array(1...5, 1...5) of float;
