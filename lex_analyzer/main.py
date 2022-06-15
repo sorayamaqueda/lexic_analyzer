@@ -315,15 +315,6 @@ def t_LOOP(t):
     t.type = reserved.get(t.value, 'LOOP')
     return t
 
-
-# range
-# def t_RANGE(t):
-#     isRangeRegex = '(\(+[0-9]+\.\.\.[0-9]+)+\,*([0-9]+\.\.\.[0-9]+)*\,*([0-9]+\.\.\.[0-9]+\)+)*'
-#     ranges = re.search(isRangeRegex, t).group() # A string with the ranges is returned. 
-#                                                 # Example: (0...4) or (0...4,0...5) or (0...4,0...2,0...5)
-#     t.type = 'RANGE'
-#     return t, ranges
-
 # with
 def t_WITH(t):
     r'with'
@@ -372,22 +363,6 @@ def while_loop(t):
 
 def for_loop(t):
     print(t)
-    # expr = p_V(t[1]) # Get the variable declaration
-
-    # # Assert that loop structure is properly declared
-    # isValid = t_FOR(t[1]) and t_IN(t[3]) and t_LOOP(t[5]) and t_END(t[7])
-
-    # if isValid:
-    #     isValidRange = p_R(t[4]) # Assert that range is properly declared
-    #     if isValidRange:
-    #         loopRange = p_R(t[4]) # Get loop range
-    #         try:
-    #             loopBody = p_S(t[6])
-    #         except:
-    #             loopBody = p_A(t[6])
-            
-    #     for i in loopRange:
-    #         eval(loopBody)
      
 def if_loop(t):
     expr = p_E(t[1])
@@ -463,11 +438,6 @@ def p_P(p):
     P : PROCEDURE ID IS V END ID SEMICOLON NEWLINE
       | PROCEDURE ID IS BEGIN S END ID SEMICOLON NEWLINE
     '''
-    # try:
-    #     p[0] = p_V(p[4])
-    # except:
-    #     p[0] = p_S(p[4])
-
     p[0] = p[4]
     print(Fore.BLUE + 'Procedure: ' + p[2] + ', declared...' + p[0])
     return p
@@ -730,9 +700,11 @@ for operator in operators:
     t+=1
 
 k = 0
+evalQuads = []
 while k < len(quad):
     print(quad[k:k+4])
     print('\n')
+    evalQuads.append(quad[k:k+4])
     Quadruples.write(str(quad[k:k+4]))
     Quadruples.write('\n')
     k+=4
@@ -769,7 +741,7 @@ for loop in loops:
     elif loop == 'while':
         print(Fore.LIGHTYELLOW_EX + 'while loop...\n')
         jumpIndex = jumps.pop()
-        exprIndex = quad.index('>') or quad.index('<') or quad.index('<=') or quad.index('>=')
+        exprIndex = quad.index('<') or quad.index('>') or quad.index(r'<\|=') or quad.index(r'>\|=')
         temp = quad[exprIndex:exprIndex + 4]
         print(quadStr)
         print('\n')
